@@ -1,0 +1,82 @@
+#!/bin/bash 
+
+HOSTOS=$(uname | tr '[:upper:]' '[:lower:]')
+
+# Some functions
+# Do we have Vagrant & Vbox?
+
+install_prereqs () {
+which vagrant && which VBoxManage && touch ./.prereq_install_complete 
+if [ -f ./.prereq_install_complete ] ; then 
+  echo "Install already completed"
+else
+  echo "Attempting to help you install Vagrant & Virtualbox"
+  ./${HOSTOS}-base-system.sh
+fi
+}
+
+first_run () {
+ if [ -f .vbox-vm-initialized ] ; then
+  echo "VM Initialized"
+ else  
+   echo "Initializing VM"
+   ./VBox_VM_Initialize.sh
+   echo "VM Initialized"
+ fi
+}
+
+launch_vm () {
+ test -f .vbox-vm-initialized || first_run
+ vagrant status | grep -i running || vagrant up
+}
+
+make_env () {
+ ./USER_CONFIG.sh
+}
+
+make_tarball () {
+ ./make_SDK_tarball.sh
+}
+
+run_build () {
+ test -f  .prereq_install_complete || install_prereqs
+ test -f ./inputs/MacOSX10.11.sdk.tar.gz || make_tarball
+ test -f ./USER_CONFIG.env || make_env
+ test -f .vbox-vm-initialized || first_run
+ vagrant status | grep running || vagrant up
+ vagrant ssh -c './run-gitian-build'
+}
+
+clean_vm () {
+ vagrant snapshot restore default Gitian-Clean
+}
+
+rebuild_vm () {
+ vagrant destroy
+ rm .vbox-vm-initialized
+ first_run
+}
+
+case $1 in
+
+install_prereqs) install_prereqs
+               ;;
+      first_run) first_run
+               ;;
+       make_env) make_env
+               ;;
+   make_tarball) make_tarball
+               ;;
+      run_build) run_build
+               ;;
+       clean_vm) clean_vm
+               ;;
+     rebuild_vm) rebuild_vm
+               ;;
+	     "") echo "No option specified, running build"
+	         run_build
+	       ;;
+	     *) cat USAGE.md
+	         exit 1
+	       ;;
+esac

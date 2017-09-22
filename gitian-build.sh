@@ -1,3 +1,7 @@
+#!/bin/bash
+
+## This script runs inside the virtualbox vm
+
 set -x
 # Copyright (c) 2016 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
@@ -7,15 +11,13 @@ set -x
 if [ -f /host_vagrantdir/USER_CONFIG.env ]; then
   . /host_vagrantdir/USER_CONFIG.env
 else
-  echo "read input from user"
-  echo "but since that's not here yet, we exit now - create USER_CONFIG.env"
-  exit 1
+  /host_vagrantdir/USER_CONFIG.sh
 fi
 
 ## Workaround for error starting builds
 ## lxc-execute reports inability to access rootfs in lxc vm
 ## remove gitian-builder/target-trusty-amd64 before starting build
-rm gitian-builder/target-trusty-amd64
+#rm gitian-builder/target-trusty-amd64
 
 
 sign=${VGITIAN_SIGN:-false}
@@ -284,6 +286,7 @@ then
 	make -C ../bitcoin-abc/depends download SOURCES_PATH=`pwd`/cache/common
 
 	# Linux
+	mkdir -pv ../gitian-results/${VERSION}
 	if [[ $linux = true ]]
 	then
             echo ""
@@ -292,7 +295,8 @@ then
 	    ./bin/gbuild -j ${proc} -m ${mem} --commit bitcoin=${COMMIT} --url bitcoin=${url} ../bitcoin-abc/contrib/gitian-descriptors/gitian-linux.yml
 	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-linux --destination ../gitian.sigs/ ../bitcoin-abc/contrib/gitian-descriptors/gitian-linux.yml
 	    cp build/out/bitcoin-*.tar.gz build/out/src/bitcoin-*.tar.gz ../bitcoin-binaries/${VERSION}
-            sleep 300
+            sleep 30
+	    mkdir -pv ../gitian-results/${VERSION}/linux
 	fi
 	# Windows
 	if [[ $windows = true ]]
@@ -304,7 +308,8 @@ then
 	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-win-unsigned --destination ../gitian.sigs/ ../bitcoin-abc/contrib/gitian-descriptors/gitian-win.yml
 	    cp build/out/bitcoin-*-win-unsigned.tar.gz inputs/bitcoin-win-unsigned.tar.gz
 	    cp build/out/bitcoin-*.zip build/out/bitcoin-*abc-.exe ../bitcoin-binaries/${VERSION}
-            sleep 300
+            sleep 30
+	    mkdir -pv ../gitian-results/${VERSION}/win
 	fi
 	# Mac OSX
 	if [[ $osx = true ]]
@@ -316,8 +321,10 @@ then
 	    ./bin/gsign -p $signProg --signer $SIGNER --release ${VERSION}-osx-unsigned --destination ../gitian.sigs/ ../bitcoin-abc/contrib/gitian-descriptors/gitian-osx.yml
 	    cp build/out/bitcoin-*-osx-unsigned.tar.gz inputs/bitcoin-osx-unsigned.tar.gz
 	    cp build/out/bitcoin-*.tar.gz build/out/bitcoin-*.dmg ../bitcoin-binaries/${VERSION}
-            sleep 300
+	    sleep 30
+	    mkdir -pv ../gitian-results/${VERSION}/osx
 	fi
+	cp -av results ../gitian-results/${VERSION}
 	popd
 
         if [[ $commitFiles = true ]]

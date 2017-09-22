@@ -1,6 +1,11 @@
 # Improvements Needed
 
 ## lxc-execute fails on first attempt to run builds
+ - TODO: check this fix
+  1. Added lxc-vm-test.sh to run in Vagrant provisioning
+     creates a clean vm and tests it 
+  2. /etc/rc.local checks a test vm before building
+
   - appears libexec/make-clean-vm fails w lxc errors
 
   tail  /var/lib/lxc/gitian/gitian.log 
@@ -16,14 +21,18 @@
 ## Complete Linux-base-system.sh
   - needs testing on debian and ubuntu base systems
 
+## configure to use apt-cacher-ng if desired
+  - 
+
 ## De-bitcoin-ify builds
   - factor variables to replace hardcoded "bitcoin" references
   - allow to build multiple coins on the same VM
 
 ## Windows powershell programming
   - make Vagrant/Virtualbox/SDK installation automated on Windows 
-  - convert OSX-base-system.sh to powershell/bat file
-  - convert USER_CONFIG.sh to powershell/bat file
+  - convert shellscripts to  powershell/bat files
 
+## Fix windows errors
+  - Manual edit of USER_CONFIG.env produces Dos files, convert to unix 
 
 

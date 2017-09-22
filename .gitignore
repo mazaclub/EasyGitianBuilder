@@ -9,3 +9,8 @@ inputs/*
 results/*
 .vagrant
 vagrant_2.0.0*
+package.box
+.prereq_install_complete
+.vbox-vm-initialized
+.vbox-vm-snapshot-clean
+.skip_osx_builds

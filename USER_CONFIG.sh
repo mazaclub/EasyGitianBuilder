@@ -1,4 +1,8 @@
 #!/bin/bash
+
+## This script runs from EasyGitian(make_env) on the host
+## This script runs inside the Virtualbox VM if /host_vagrantdir/USER_CONFIG.env is not found
+
 # Create environment variables file for running gitian builds via vagrant
 
  

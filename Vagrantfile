@@ -14,7 +14,8 @@ Vagrant.configure("2") do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "debian/contrib-jessie64"
   config.vm.box_version = "8.5.0"
-
+  config.vm.hostname = "gitian-jessie"
+  config.vm.post_up_message = "Run ./EasyGitian to start building or 'vagrant ssh' to login directly"
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
@@ -54,6 +55,8 @@ Vagrant.configure("2") do |config|
    config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
      vb.gui = true
+     vb.name = "Gitian-builder_jessie"
+
   #
   #   # Customize the amount of memory on the VM:
      vb.memory = "4096"
@@ -103,7 +106,7 @@ Vagrant.configure("2") do |config|
    echo 'iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE' >> /etc/rc.local
    echo 'echo 1 > /proc/sys/net/ipv4/ip_forward' >> /etc/rc.local
    # lxc-execute is failing on first start after reboot, this fixes that
-   echo '/usr/bin/lxc-execute -n gitian -f /home/vagrant/gitian-builder/var/lxc.config -- sudo -u root -i -- ps' >> /etc/rc.local
+   echo 'test -f /home/vagrant/gitian-builder/var/lxc.config && /usr/bin/lxc-execute -n gitian -f /home/vagrant/gitian-builder/var/lxc.config -- sudo -u root -i -- ps' >> /etc/rc.local
    echo 'exit 0' >> /etc/rc.local
    # make sure that USE_LXC is always set when logging in as debian,
    # and configure LXC IP addresses
@@ -122,7 +125,10 @@ Vagrant.configure("2") do |config|
 
    chown -R vagrant.vagrant /home/vagrant
    su - vagrant -c /host_vagrantdir/prep_gitian.sh
+   /etc/rc.local
+   su - vagrant -c '/host_vagrantdir/lxc-vm-test.sh'
    cp /host_vagrantdir/gitian-build.sh /home/vagrant/run-gitian-build
+   #su - vagrant -c '/home/vagrant/run-gitian-build'
    SHELL
 
 
