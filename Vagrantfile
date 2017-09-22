@@ -12,6 +12,11 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
+# From Hashicorp (Vagrant) website:
+# Checksums for versioned boxes or boxes from HashiCorp's Vagrant Cloud: 
+# For boxes from HashiCorp's Vagrant Cloud, 
+# the checksums are embedded in the metadata of the box. 
+# The metadata itself is served over TLS and its format is validated.
   config.vm.box = "debian/contrib-jessie64"
   config.vm.box_version = "8.5.0"
   config.vm.hostname = "gitian-jessie"
@@ -47,6 +52,8 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./cache", "/home/vagrant/gitian-builder/cache"
   config.vm.synced_folder "./inputs", "/home/vagrant/gitian-builder/inputs"
   config.vm.synced_folder "./results", "/home/vagrant/gitian-results"
+  
+  config.vm.define "Gitian-builder_jessie"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.

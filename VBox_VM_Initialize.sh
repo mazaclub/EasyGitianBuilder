@@ -17,16 +17,20 @@ test -d ./build || mkdir ./build
 test -d ./cache || mkdir ./cache
 test -d ./inputs || mkdir ./inputs 
 test -d ./results || mkdir ./results
-vagrant up && \
- touch .vbox-vm-initialized && \
- echo "Halting VM to take snapshot for future use" && \
- vagrant halt && \
- vagrant snapshot save default Gitian-Clean && \
- touch .vbox-vm-snapshot-clean && \
- echo "Now we'll reboot the VM and you'll be ready to build" && \
- vagrant up && \
- ./EasyGitian run_build && \
- exit 0
+vagrant up \
+ && touch .vbox-vm-initialized \
+ && echo "Halting VM to take snapshot for future use" \
+ && vagrant halt \
+ && ./Add_VM_Disk.sh \
+ && vagrant up \
+ && vagrant ssh -c '/host_vagrantdir/mount_build_disk.sh' \
+ && vagrant halt \
+ && vagrant snapshot save Gitian-builder_jessie Gitian-Clean \
+ && touch .vbox-vm-snapshot-clean \
+ && echo "Now we'll reboot the VM and you'll be ready to build" \
+ && vagrant up \
+ && ./EasyGitian run_build \
+ && exit 0
 
 echo "Trouble initializing VM - please report errors in an issue"
 echo "at https://github.com/mazacub/easygitianbuilder"

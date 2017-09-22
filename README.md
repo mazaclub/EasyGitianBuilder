@@ -5,8 +5,6 @@
 
 
 Work in progress 
- - will not complete a full buildset at this time
- - base box used has too small disk
  - Linux is untested, may or may not succeed at building 
  - Windows is not fully automated. Use is possible via
    Vagrant commands 
@@ -75,4 +73,5 @@ Work in progress
       vagrant up
       ```
     
+    - Scripts intended to be used inside the vm are in all lowercase - other scripts are intended for use on the host
  

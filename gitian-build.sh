@@ -297,6 +297,7 @@ then
 	    cp build/out/bitcoin-*.tar.gz build/out/src/bitcoin-*.tar.gz ../bitcoin-binaries/${VERSION}
             sleep 30
 	    mkdir -pv ../gitian-results/${VERSION}/linux
+	    cp -av results ../gitian-results/${VERSION}
 	fi
 	# Windows
 	if [[ $windows = true ]]
@@ -310,6 +311,7 @@ then
 	    cp build/out/bitcoin-*.zip build/out/bitcoin-*abc-.exe ../bitcoin-binaries/${VERSION}
             sleep 30
 	    mkdir -pv ../gitian-results/${VERSION}/win
+	    cp -av results ../gitian-results/${VERSION}
 	fi
 	# Mac OSX
 	if [[ $osx = true ]]
@@ -323,6 +325,7 @@ then
 	    cp build/out/bitcoin-*.tar.gz build/out/bitcoin-*.dmg ../bitcoin-binaries/${VERSION}
 	    sleep 30
 	    mkdir -pv ../gitian-results/${VERSION}/osx
+	    cp -av results ../gitian-results/${VERSION}
 	fi
 	cp -av results ../gitian-results/${VERSION}
 	popd

@@ -1,9 +1,11 @@
 #!/bin/bash 
 
+
 HOSTOS=$(uname | tr '[:upper:]' '[:lower:]')
+EG_VERSION=0.1.0
+
 
 # Some functions
-# Do we have Vagrant & Vbox?
 die () {
  
  case $1 in
@@ -39,8 +41,8 @@ first_run () {
   echo "VM Initialized"
  else  
    echo "Initializing VM"
-   ./VBox_VM_Initialize.sh
-   echo "VM Initialized"
+   ./VBox_VM_Initialize.sh && echo "VM Initialized" 
+   test -f .vbox-vm-initialized || echo "VM initialization failed" 
  fi
 }
 
@@ -54,7 +56,7 @@ make_env () {
 }
 
 make_tarball () {
-  test -f .skip_osx_builds || ./make_SDK_tarball.sh
+  test -f .skip_osx_builds || ./Make_SDK_tarball.sh
 }
 
 run_build () {
@@ -75,16 +77,25 @@ clean_vm () {
  test -f .vbox-vm-initialized && echo "VM Not initialized" && exit 2
  vagrant status | grep "not created" && echo "VM Not created" && exit 1
  vagrant status | grep running && vagrant halt
- vagrant snapshot list default |grep Gitian-Clean &&  vagrant snapshot restore default Gitian-Clean
+ vagrant snapshot list Gitian-builder_jessie |grep Gitian-Clean && \
+   vagrant snapshot restore Gitian-builder_jessie Gitian-Clean && \
+   rm .vbox-vm-initialized
+
 }
 
 destroy_vm () {
  vagrant destroy && \
-   rm .vbox-vm-initialized
+   rm .vbox-vm-initialized && \
+   rm .vbox-vm-snapshot-clean &&
+   rm .prereq_install_complete
 }
 rebuild_vm () {
  destroy_vm 
  first_run
+}
+reboot_vm () {
+ echo "Rebooting Gitian-builder_jessie VM"
+ vagrant reload
 }
 
 case $1 in
@@ -104,6 +115,8 @@ install_prereqs) install_prereqs
      rebuild_vm) rebuild_vm
                ;;
      destroy_vm) destroy_vm
+               ;;
+      reboot_vm) reboot_vm
                ;;
 	     "") echo "No option specified, running build"
 	         run_build
