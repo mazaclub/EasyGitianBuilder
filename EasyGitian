@@ -72,12 +72,18 @@ run_build () {
 }
 
 clean_vm () {
- vagrant snapshot restore default Gitian-Clean
+ test -f .vbox-vm-initialized && echo "VM Not initialized" && exit 2
+ vagrant status | grep "not created" && echo "VM Not created" && exit 1
+ vagrant status | grep running && vagrant halt
+ vagrant snapshot list default |grep Gitian-Clean &&  vagrant snapshot restore default Gitian-Clean
 }
 
+destroy_vm () {
+ vagrant destroy && \
+   rm .vbox-vm-initialized
+}
 rebuild_vm () {
- vagrant destroy
- rm .vbox-vm-initialized
+ destroy_vm 
  first_run
 }
 
@@ -96,6 +102,8 @@ install_prereqs) install_prereqs
        clean_vm) clean_vm
                ;;
      rebuild_vm) rebuild_vm
+               ;;
+     destroy_vm) destroy_vm
                ;;
 	     "") echo "No option specified, running build"
 	         run_build
