@@ -1,5 +1,9 @@
 # Easy Gitian Building for Coin projects
 
+ - Provides a Script set to operate Vagrant & Virtualbox
+ - Provisions all requirements for gitian-builder to use lxc containers for building
+
+
 Work in progress 
  - will not complete a full buildset at this time
  - base box used has too small disk
@@ -7,7 +11,8 @@ Work in progress
  - Windows is not fully automated. Use is possible via
    Vagrant commands 
 
-
+ - Uses modified gitian-build.sh from Bitcoin
+ - Uses standard gitian-builder repo to build with an Ubuntu trusty-amd64 LXC vm
 
 ## OSX 
  EasyGitian will attempt to ensure that you have Vagrant and Virtualbox 
