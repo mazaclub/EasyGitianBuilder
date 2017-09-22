@@ -1,5 +1,14 @@
 # Easy Gitian Building for Coin projects
 
+Work in progress 
+ - will not complete a full buildset at this time
+ - base box used has too small disk
+ - Linux is untested, may or may not succeed at building 
+ - Windows is not fully automated. Use is possible via
+   Vagrant commands 
+
+
+
 ## OSX 
  EasyGitian will attempt to ensure that you have Vagrant and Virtualbox 
  installed, and download and help you to install them if needed. 
@@ -43,25 +52,21 @@
     - optionally acquire the OSX SDK tarball required for 
       building OSX versions, and put in the inputs directory made above
     - run
-      ```
-      vagrant up
+      ```vagrant up
       ```
       to start the machine the first time and provision all gitian's requirements
     - Once provisioning for the machine is complete, halt and make a snapshot
-      ```
-      vagrant halt
+      ```vagrant halt
       vagrant snapshot save default Gitian-Clean
       vagrant up
       vagrant ssh
       ```
     - on the VM commandline run
-      ```
-      ./run-gitian-build
+      ```./run-gitian-build
       ```
     - This directory is mounted in the VM as /host_vagrantdir 
     - to completely rebuild your VM and lose all snapshots
-      ```
-      vagrant destroy
+      ```vagrant destroy
       vagrant up
       ```
     

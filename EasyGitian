@@ -4,6 +4,25 @@ HOSTOS=$(uname | tr '[:upper:]' '[:lower:]')
 
 # Some functions
 # Do we have Vagrant & Vbox?
+die () {
+ 
+ case $1 in
+  1) echo "EasyGitian already running"
+   ;;
+  *) echo "unknown error"
+   ;;
+ esac
+}
+
+check_self () {
+ # Crude check to see if a build is running 
+ # shuold be corresponding check in the VM
+ if [ ${HOSTOS} = "darwin"] ; then
+   ps -aef |grep EasyGitian || die 1
+ elif [ ${HOSTOS} = "linux"] ; then
+   ps ax | grep EasyGitian || die 1
+ fi
+}
 
 install_prereqs () {
 which vagrant && which VBoxManage && touch ./.prereq_install_complete 
@@ -31,20 +50,25 @@ launch_vm () {
 }
 
 make_env () {
- ./USER_CONFIG.sh
+ test -f .skip_config ||  ./USER_CONFIG.sh
 }
 
 make_tarball () {
- ./make_SDK_tarball.sh
+  test -f .skip_osx_builds || ./make_SDK_tarball.sh
 }
 
 run_build () {
  test -f  .prereq_install_complete || install_prereqs
+ echo "Vagrant and Virtualbox installed"
  test -f ./inputs/MacOSX10.11.sdk.tar.gz || make_tarball
+ echo "OSX SDK tarball checked"
  test -f ./USER_CONFIG.env || make_env
+ echo "Gitian settings configuration checked"
  test -f .vbox-vm-initialized || first_run
- vagrant status | grep running || vagrant up
- vagrant ssh -c './run-gitian-build'
+ echo "Virtualbox VM initialized"
+ vagrant status | grep running || vagrant up && \
+  echo "VM Started - running build" && \
+  vagrant ssh -c './run-gitian-build'
 }
 
 clean_vm () {

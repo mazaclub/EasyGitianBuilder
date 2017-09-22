@@ -1,5 +1,11 @@
 # Improvements Needed
 
+## base box used doesn't have enough disk space to run the full build
+ - use another base box
+ - add another virtual disk
+ 
+## signing and verification are not implemented
+
 ## lxc-execute fails on first attempt to run builds
  - TODO: check this fix
   1. Added lxc-vm-test.sh to run in Vagrant provisioning
@@ -34,5 +40,13 @@
 
 ## Fix windows errors
   - Manual edit of USER_CONFIG.env produces Dos files, convert to unix 
+
+## add other vagrant providers
+  - aws
+  - digitalocean
+  - allow user to set machine size for faster builds
+  - allow user to create ramdisk for faster builds
+  - allow user to choose spot pricing 
+
 
 

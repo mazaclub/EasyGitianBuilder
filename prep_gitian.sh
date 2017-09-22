@@ -1,9 +1,10 @@
-#!/bin/bash -x
+#!/bin/bash
 
 ## This script runs inside the virtualbox vm 
 
 
 # gitian-builder directory has shared folders mounted
+# prior to cloning 
 mkdir ~/tmp-git
 cd ~/tmp-git
 git clone https://github.com/devrandom/gitian-builder
@@ -17,3 +18,4 @@ ln -s ~/bitcoin-abc ~/gitian-builder/
 ln -s ~/gitian.sigs ~/gitian-builder/
 cd ~/gitian-builder
 ./bin/make-base-vm --lxc --arch amd64 --suite trusty
+
