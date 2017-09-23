@@ -9,6 +9,8 @@
        clean_vm - Revert to snapshot made in first_run
        rebuild_vm - destroy and recreate the virtualbox VM  
        run_build - Run Gitian build
+       reboot_vm - Restart VirtualMachine, Reload Vagrantfile
+       destroy_vm - destroy VM - destroys build disk
 
  Running ./EasyGitian with no options will run the build, which will run 
  all steps necessary to prep the system for building 
