@@ -74,13 +74,35 @@ run_build () {
 }
 
 clean_vm () {
- test -f .vbox-vm-initialized && echo "VM Not initialized" && exit 2
- vagrant status | grep "not created" && echo "VM Not created" && exit 1
- vagrant status | grep running && vagrant halt
- vagrant snapshot list Gitian-builder_jessie |grep Gitian-Clean && \
-   vagrant snapshot restore Gitian-builder_jessie Gitian-Clean && \
-   rm .vbox-vm-initialized
+ if [ ! -f .vbox-vm-initialized ]; then 
+   echo "VM Not initialized" 
+   exit 2
+ fi
+   
+ vagrant status | grep "not created" && vm_created=no
+ if [ "${vm_created}" = "no" ]; then
+   echo "VM Not created" 
+   exit 1
+ fi
 
+ vagrant status | grep running && vagrant halt
+ vagrant snapshot list Gitian-builder_jessie |grep Gitian-Clean \
+  && echo "Found snapshot for Gitian-builder_jessie" \
+  && vagrant snapshot restore --no-provision Gitian-builder_jessie Gitian-Clean \
+  && echo "Snapshot restored - You should have a clean VM now" \
+  && touch .vbox-vm-initialized \
+  && echo "Gitian-builder_jessie VM cleaned - snapshot restored" \
+  && echo "Your vm should be started. You can run:" \
+  && echo "" \
+  && echo "./EasyGitian " \
+  && echo "" \
+  && echo "To begin a build" \
+  && exit 0
+ # or you don't have a snapshot
+ echo "Looks like you may not have a good snapshot"
+ echo "You may want to run:"
+ echo "./EasyGitian rebuild_vm"
+ 
 }
 
 destroy_vm () {
