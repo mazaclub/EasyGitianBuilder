@@ -98,6 +98,10 @@ reboot_vm () {
  vagrant reload
 }
 
+halt_vm () {
+ vagrant halt
+}
+
 case $1 in
 
 install_prereqs) install_prereqs
@@ -118,6 +122,8 @@ install_prereqs) install_prereqs
                ;;
       reboot_vm) reboot_vm
                ;;
+	halt_vm) halt_vm
+	       ;;
 	     "") echo "No option specified, running build"
 	         run_build
 	       ;;
