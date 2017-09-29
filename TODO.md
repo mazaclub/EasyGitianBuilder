@@ -7,6 +7,7 @@
    - check available host ram 
    - check for VT-x / AMD-v capabilities (linux hosts)
 
+## test linux install 
 ## organize scripts
    - vm data should be in their own dir
 

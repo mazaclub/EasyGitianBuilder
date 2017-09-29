@@ -20,7 +20,7 @@ wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
 wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
 
 # Verify shasums signature via gpg
-gpg --recv-keys 51852D87348FFC4C || exit 9
+gpg --keyserver hkp://pgp.mit.edu  --recv-keys 51852D87348FFC4C || exit 9
 gpg --verify vagrant_2.0.0_SHA256SUMS.sig vagrant_2.0.0_SHA256SUMS || exit 8
 
 # Verify shasum for download
@@ -38,8 +38,9 @@ touch .vagrant_installed
 # first determine if we have a proper distro
 get_distro () {
  # here's one attempt 
- OS=$(grep NAME /etc/os-release | grep -v PRETTY|awk -F= '{print $2}'|sed 's/\"//g')
+ #OS=$(grep NAME /etc/os-release | grep -v PRETTY|awk -F= '{print $2}'|sed 's/\"//g')
  #OS=Ubuntu
+ OS=$(lsb_release -is|tr '[:upper:]' '[:lower:]')
  if [ "${OS}" = "ubuntu" ]; then
    OS=Ubuntu
    osrelease=$(grep VERSION /etc/os-release |grep -v ID|awk -F\, '{print $2}'|sed 's/\"//g'|awk '{print $1}'|tr '[:upper:]' '[:lower:]')
@@ -56,14 +57,42 @@ get_distro () {
 
 
 get_vbox () {
-# Get files 
-wget http://download.virtualbox.org/virtualbox/5.1.28/virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb 
-wget http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
-wget https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
-# Verify shasum for download
-grep virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb  SHA256SUMS | shasum -c || exit 6
-grep "117968.vbox-extpack" SHA256SUMS | shasum -c || exit 5
-dpkg -i virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb
+
+if [ "${OS}" = "debian" ] ; then
+ echo "Installing Virtualbox from apt"
+ case "${osrelease}" in
+   jessie) echo "Installing virtualbox via jessie-backports to get latest version"
+           # add apt source for backports
+	   echo "deb http://ftp.debian.org/debian jessie-backports main contrib" >> ./jessie-backports.list
+	   sudo  mv ./jessie-backports.list /etc/apt/sources.list.d
+	   sudo chown root.root /etc/apt/sources.list.d/jessie-backports.list
+           sudo apt-get update
+           # install kernel headers 
+	   sudo apt-get install -y linux-headers-"$(uname -r|sed 's,[^-]*-[^-]*-,,')"
+           sudo apt-get install -y -t jessie-backports install virtualbox virtualbox-guest-additions-iso virtualbox-guest-x11
+          ;;
+  stretch) echo "Installing virtualbox via contrib repository" 
+           echo "deb http://download.virtualbox.org/virtualbox/debian stretch contrib" >> ./stretch-virtualbox.list
+           sudo mv ./stretch-virtualbox.list /etc/apt/sources.list.d/
+           chown root.root /etc/apt/sources.list.d/stretch-virtualbox.list
+           curl -O https://www.virtualbox.org/download/oracle_vbox_2016.asc
+           sudo apt-key add oracle_vbox_2016.asc
+           sudo apt-get update
+           sudo apt-get install vitrualbox-5.1
+	  ;;
+	 *) echo "Installation of Virtualbox not yet implemented on your system"
+	  ;;
+ esac
+else 
+  echo "Attempting to download Virtualbox from official web source and install via dpkg"
+  wget http://download.virtualbox.org/virtualbox/5.1.28/virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb 
+  wget http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
+  wget https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
+  # Verify shasum for download
+  grep virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb  SHA256SUMS | shasum -c || exit 6
+  grep "117968.vbox-extpack" SHA256SUMS | shasum -c || exit 5
+  sudo dpkg -i virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb
+fi
 which VBoxManage || not_installed VBoxManage
 touch .Vbox_installed
 }

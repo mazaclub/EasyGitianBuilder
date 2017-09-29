@@ -71,7 +71,16 @@ build machines
  Manual operation is possible, and outlined below
 
 ## Linux 
- Linux operation is similar but yet untested. 
+
+ Debian, Ubuntu and CentOS are supprted directly by Vagrant
+ Currently, only Debian based systems are supported in EasyGitian
+
+ Linux operation is similar but mostly untested
+ 
+ On debian stretch & jessie virtualbox is installed via apt
+ On other debian based systems (including ubuntu for now) 
+ an attempt is made to download the .deb file for your host system and install via dpkg 
+
 
 ## Windows, and manual usage
    Windows users will need to install Vagrant and VirtualBox (and the extension pack) 
