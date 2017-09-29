@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/vagrant/gitian-builder
+cd /home/vagrant/gitian-builder || exit 2
 PATH=$PATH:$(pwd)/libexec
 make-clean-vm --suite trusty --arch amd64
 

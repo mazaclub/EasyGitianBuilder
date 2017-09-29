@@ -48,9 +48,9 @@ touch .Vbox_installed
 
 not_installed () {
 (( attempts++ ))
-if [ ${attempts} -le 3 ] then
+if [ ${attempts} -le 3 ]; then
    echo "Attempting to install ${1} -  ${attempts} tries"
-   which $1 || get_${1}
+   which "$1" || get_"${1}"
 else 
    echo "Installation of ${1} failed"
    test -f ./.Vbox_installed && echo "VirtualBox seems installed" 

@@ -4,6 +4,9 @@
 ## signing and verification are not implemented
 ## more basic sanity checking is required throughout
    - disk space on host should be checked
+   - check available host ram 
+   - check for VT-x / AMD-v capabilities (linux hosts)
+
 ## organize scripts
    - vm data should be in their own dir
 

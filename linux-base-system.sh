@@ -38,14 +38,14 @@ touch .vagrant_installed
 # first determine if we have a proper distro
 get_distro () {
  # here's one attempt 
- OS=$(cat  /etc/os-release |grep NAME | grep -v PRETTY|awk -F\= '{print $2}'|sed 's/\"//g')
+ OS=$(grep NAME /etc/os-release | grep -v PRETTY|awk -F= '{print $2}'|sed 's/\"//g')
  #OS=Ubuntu
- if [ ${OS} = "ubuntu" ]; then
+ if [ "${OS}" = "ubuntu" ]; then
    OS=Ubuntu
-   osrelease=$(cat  /etc/os-release |grep VERSION|grep -v ID|awk -F\, '{print $2}'|sed 's/\"//g'|awk '{print $1}'|tr '[:upper:]' '[:lower:]')
+   osrelease=$(grep VERSION /etc/os-release |grep -v ID|awk -F\, '{print $2}'|sed 's/\"//g'|awk '{print $1}'|tr '[:upper:]' '[:lower:]')
  elif [ ${OS} = "debian" ] ; then
    OS=Debian
-   osrelease=$(cat  /etc/os-release |grep VERSION|grep -v ID|awk  '{print $2}'|sed 's/\"//g'|awk -F\( '{print $2}'|awk -F\) '{print $1}')
+   osrelease=$( grep VERSION /etc/os-release |grep -v ID|awk  '{print $2}'|sed 's/\"//g'|awk -F\( '{print $2}'|awk -F\) '{print $1}')
  else
    echo "OS not recognized - currently only debian and ubuntu are supported"
    echo "If you're running debian or ubuntu, please report the version in an"
@@ -57,22 +57,22 @@ get_distro () {
 
 get_vbox () {
 # Get files 
-wget http://download.virtualbox.org/virtualbox/5.1.28/virtualbox-5.1_5.1.28-117968~${OS}~${osrelease}_amd64.deb 
+wget http://download.virtualbox.org/virtualbox/5.1.28/virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb 
 wget http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
 wget https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
 # Verify shasum for download
-grep virtualbox-5.1_5.1.28-117968~${OS}~${osrelease}_amd64.deb  SHA256SUMS | shasum -c || exit 6
+grep virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb  SHA256SUMS | shasum -c || exit 6
 grep "117968.vbox-extpack" SHA256SUMS | shasum -c || exit 5
-dpkg -i virtualbox-5.1_5.1.28-117968~${OS}~${osrelease}_amd64.deb
+dpkg -i virtualbox-5.1_5.1.28-117968~"${OS}"~"${osrelease}"_amd64.deb
 which VBoxManage || not_installed VBoxManage
 touch .Vbox_installed
 }
 
 not_installed () {
 (( attempts++ ))
-if [ ${attempts} -le 3 ] then
+if [ ${attempts} -le 3 ]; then
    echo "Attempting to install ${1} -  ${attempts} tries"
-   which $1 || get_${1}
+   which "$1" || get_"${1}"
 else 
    echo "Installation of ${1} failed"
    test -f ./.Vbox_installed && echo "VirtualBox seems installed" 

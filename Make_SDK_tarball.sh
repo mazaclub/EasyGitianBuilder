@@ -13,8 +13,8 @@ touch ./.skip_osx_builds
 }
 
 get_answer () {
- read tarball
-mktarball=$(echo ${tarball} | tr '[:upper:]' '[:lower:]')
+ read -r tarball
+mktarball=$(echo "${tarball}" | tr '[:upper:]' '[:lower:]')
 }
 
 check_linux () {
@@ -37,10 +37,10 @@ case $1 in
       test -d /Volumes/Xcode || test -f ./Xcode_7.3.1.dmg && hdiutil attach ./Xcode_7.3.1.dmg
       test -d /Volumes/Xcode || exit 99
       test -d ./inputs || mkdir -v ./inputs
-      cd ./inputs
+      pushd ./inputs || exit 4
       tar -C /Volumes/Xcode/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/ -czf MacOSX10.11.sdk.tar.gz MacOSX10.11.sdk
       test -f MacOSX10.11.sdk.tar.gz || exit 3
-      cd ..
+      popd
       echo "MacOSX 10.11 SDK tarball created"
    ;;
    s) echo "Skipped download, not making tarball - please maksure it is in the inputs directory in this directory"
@@ -60,7 +60,7 @@ echo " "
 echo "Press d to download"
 echo "Press s to skip OSX builds"
 get_answer
-case $mktarball in 
+case "${mktarball}" in 
   d) echo "Proceeding to tarball install"
      download_tarball
    ;;
@@ -75,7 +75,7 @@ esac
 download_tarball () {
   # login to developer.apple.com and download the SDK
    HOSTOS="$(uname |tr '[:upper:]' '[:lower:]')"
-  if [ ${HOSTOS} = "darwin" ] ; then
+  if [ "${HOSTOS}" = "darwin" ] ; then
      cat << END
       Now Open a browser and obtain https://developer.apple.com/devcenter/download.action?path=/Developer_Tools/Xcode_7.3.1/Xcode_7.3.1.dmg
       If you do not have an Apple Developer ID, you will need to register for one to download Xcode
@@ -89,15 +89,15 @@ END
      echo "Press D to continue after downloading or"
      echo "Press S to skip making the tarball"
      get_answer
-     ball_it ${mktarball}
-  elif [ ${HOSTOS} = "linux" ] ; then
+     ball_it "${mktarball}"
+  elif [ "${HOSTOS}" = "linux" ] ; then
      cat << END
       Making the tarball isn't supported (yet) on Linux
       You can place one in ./inputs and it will be used to build OSX versions
       Otherwise you can mark this step as Skipped
 END
      get_answer
-     check_linux ${mktarball}
+     check_linux "${mktarball}"
   else 
      echo "Host not recognized - report github issue"
      exit 2

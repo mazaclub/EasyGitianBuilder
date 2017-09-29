@@ -2,7 +2,7 @@
 
 
 HOSTOS=$(uname | tr '[:upper:]' '[:lower:]')
-EG_VERSION=0.1.0
+#EG_VERSION=0.1.0
 
 
 # Some functions
@@ -19,10 +19,10 @@ die () {
 check_self () {
  # Crude check to see if a build is running 
  # shuold be corresponding check in the VM
- if [ ${HOSTOS} = "darwin"] ; then
-   ps -aef |grep EasyGitian || die 1
- elif [ ${HOSTOS} = "linux"] ; then
-   ps ax | grep EasyGitian || die 1
+ if [ "${HOSTOS}" = "darwin" ] ; then
+   pgrep EasyGitian || die 1
+ elif [ "${HOSTOS}" = "linux" ] ; then
+   pgrep EasyGitian || die 1
  fi
 }
 
@@ -32,7 +32,7 @@ if [ -f ./.prereq_install_complete ] ; then
   echo "Install already completed"
 else
   echo "Attempting to help you install Vagrant & Virtualbox"
-  ./${HOSTOS}-base-system.sh
+  ./"${HOSTOS}"-base-system.sh
 fi
 }
 
