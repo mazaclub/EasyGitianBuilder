@@ -10,12 +10,31 @@ die () {
  
  case $1 in
   1) echo "EasyGitian already running"
-   ;;
+     exit 1
+     ;;
+  2) printf "\nInsufficient disk space in '$HOME/VirtualBox VMs' 50GB required, %s availablei\n" "$vboxspace"
+     exit 2
+     ;;
+  3) printf "\nInsufficient disk space in EasyGitian directory 20GB required, %s availablei\n" "$egbspace"
+     exit 3 
+     ;;
   *) echo "unknown error"
-   ;;
+     exit 999
+     ;;
  esac
 }
 
+check_diskspace () {
+  vboxspace=$(df -k "$HOME/Virtualbox\ VMs" |grep dev|awk '{print $4}')
+  egbspace=$(df -k ./|awk '{print $4}')
+  if [ "$vboxspace" -le 50000000 ]; then
+     die 2 #insufficient diskspace
+  fi
+  if [ "$egbspace" -le 20000000 ]; then
+     die 3
+  fi
+}
+ 
 check_self () {
  # Crude check to see if a build is running 
  # shuold be corresponding check in the VM
@@ -27,7 +46,20 @@ check_self () {
 }
 
 install_prereqs () {
-which vagrant && which VBoxManage && touch ./.prereq_install_complete 
+which vagrant > /dev/null 2>&1 \
+  && echo "Vagrant appears to be installed" \
+  && vagrant version \
+  && echo "" \
+  && which VBoxManage  > /dev/null 2>&1 \
+  && echo "Virtualbox appears to be installed" \
+  && echo "Virtualbox Version: $(VBoxManage -v)" \
+  && echo "" \
+  && if [ "$(VBoxManage list extpacks |grep "Usable" | awk '{print $2}')" = "true" ] ; then
+      echo "Virtualbox Extension Pack installed:"
+      VBoxManage list extpacks|grep -E '(Version|Revision)'
+      echo ""
+      touch ./.prereq_install_complete
+     fi
 if [ -f ./.prereq_install_complete ] ; then 
   echo "Install already completed"
 else
@@ -40,6 +72,8 @@ first_run () {
  if [ -f .vbox-vm-initialized ] ; then
   echo "VM Initialized"
  else  
+   echo "Checking Disk Space"
+   check_disk_space
    echo "Initializing VM"
    ./VBox_VM_Initialize.sh && echo "VM Initialized" 
    test -f .vbox-vm-initialized || echo "VM initialization failed" 
@@ -122,7 +156,37 @@ reboot_vm () {
 
 halt_vm () {
  vagrant halt
+ echo "Your GitianBuilder VM should be shutdown now"
+ echo "You can save it to run more builds, or clean up"
+ cat USAGE.md
+ exit 0
 }
+
+watch_build () {
+  echo " "
+  echo "Watching build logs"
+  echo "NOTE: watch_build only watches a single OS build"
+  echo "      at this time. Restart once each for Linux,"
+  echo "      Windows, and OSX builds"
+  vagrant ssh -c '/host_vagrantdir/watch_build.sh'
+  exit
+}
+
+toggle_gui () {
+  gui=$(grep "vb.gui" Vagrantfile|awk '{print $3}')
+  if [ "$gui" = "true" ] ; then
+     sed -i.guitrue 's/vb\.gui\ \=\ true/vb\.gui\ \=\ false/g' Vagrantfile 
+     rm Vagrantfile.guitrue
+     echo "VM will run in headless mode"
+  else
+     sed -i.guifalse 's/vb\.gui\ \=\ false/vb\.gui\ \=\ true/g' Vagrantfile 
+     rm Vagrantfile.guifalse
+     echo "VM will run with GUI - login on console as"
+     echo "username: vagrant"
+     echo "password: vagrant"
+  fi
+}
+
 
 case $1 in
 
@@ -146,10 +210,13 @@ install_prereqs) install_prereqs
                ;;
 	halt_vm) halt_vm
 	       ;;
+    watch_build) watch_build
+               ;;
+     toggle_gui) toggle_gui
+               ;;
 	     "") echo "No option specified, running build"
 	         run_build
 	       ;;
 	     *) cat USAGE.md
 	         exit 1
-	       ;;
 esac

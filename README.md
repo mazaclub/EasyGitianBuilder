@@ -34,7 +34,6 @@ build machines
 
 
 ## Work in progress 
- - Linux is not as well tested, may or may not succeed at building, may be behind OSX development 
  - Windows is not fully automated. Use is possible via
    Vagrant commands 
 

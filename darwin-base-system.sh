@@ -7,9 +7,9 @@
 # Vagrant 
 get_vagrant () {
 # Get files 
-wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
-wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
-wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
+curl -O https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
+curl -O https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
+curl -O https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
 
 # Verify shasums signature via gpg
 gpg --recv-keys 51852D87348FFC4C || exit 9
@@ -31,9 +31,9 @@ touch .vagrant_installed
 # Virtualbox
 get_vbox () {
 # Get files 
-wget http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
-wget http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
-wget https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
+curl -O http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
+curl -O http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
+curl -O https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
 # Verify shasum for download
 grep dmg SHA256SUMS | shasum -c || exit 6
 grep "117968.vbox-extpack" SHA256SUMS | shasum -c || exit 5
@@ -43,6 +43,12 @@ hdiutil attach VirtualBox-5.1.28-117968-OSX.dmg -autoopen
 echo "Now drag the VirtualBox icon to the Applications folder" 
 read -n 1 -s -r -p "Press any key to continue";echo
 which VBoxManage || not_installed VBoxManage
+echo "Installing VirtualBox Extension Pack (required)"
+sleep 5
+extpack_installed=$(VBoxManage list extpacks |grep "Usable" | awk '{print $2}')
+if [ "$extpack_installed" != "true" ] ; then
+   VBoxManage extpack install --replace Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
+fi
 touch .Vbox_installed
 }
 

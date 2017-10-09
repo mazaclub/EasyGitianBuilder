@@ -7,61 +7,63 @@
 
  
 rm user_config.env
+printf "#!/bin/bash \n" > user_config.env
 echo "Sign build? t/f"
-read VGITIAN_SIGN  
-echo "VGITIAN_SIGN=$(echo $VGITIAN_SIGN | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')" >> user_config.env
+read -r -n1 VGITIAN_SIGN
+echo "export VGITIAN_SIGN=$(echo "${VGITIAN_SIGN}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')" >> user_config.env
 
 echo "Verify build t/f"
-read VGITIAN_VERIFY
-echo "VGITIAN_VERIFY=$(echo $VGITIAN_VERIFY | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
+read -r -n1 VGITIAN_VERIFY
+echo "export VGITIAN_VERIFY=$(echo "${VGITIAN_VERIFY}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env
 
 echo "Run build t/f"
-read VGITIAN_BUILD
-echo "VGITIAN_BUILD=$(echo $VGITIAN_BUILD | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
+read -r -n1 VGITIAN_BUILD
+echo "export VGITIAN_BUILD=$(echo "${VGITIAN_BUILD}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env
 
 #echo "Setup build environment t/f"
-#  read VGITIAN_
-#VGITIAN_SETUPENV=$(echo $VGITIAN_SETUPENV | tr '[:upper:]' '[:lower:]')
-echo "VGITIAN_SETUPENV=false" >> user_config.env
+#  read -r -n1 VGITIAN_
+#VGITIAN_SETUPENV=$(echo "${VGITIAN_SETUPENV}" | tr '[:upper:]' '[:lower:]')
+echo "export VGITIAN_SETUPENV=false" >> user_config.env
 
 echo "Build Linux t/f"
-read VGITIAN_LINUX
-echo "VGITIAN_LINUX=$(echo $VGITIAN_LINUX | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
+read -r -n1 VGITIAN_LINUX
+echo "export VGITIAN_LINUX=$(echo "${VGITIAN_LINUX}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
 
 echo "Build Windows t/f"
-read VGITIAN_WIN
-echo "VGITIAN_WIN=$(echo $VGITIAN_WIN | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
+read -r -n1 VGITIAN_WIN
+echo "export VGITIAN_WIN=$(echo "${VGITIAN_WIN}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env
 
 echo "Build OSX t/f"
-read VGITIAN_OSX
-echo "VGITIAN_OSX=$(echo $VGITIAN_OSX | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
+read -r -n1 VGITIAN_OSX
+echo "export VGITIAN_OSX=$(echo "${VGITIAN_OSX}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
 
 echo "Build Signer [what goes here?]"
-read VGITIAN_SIGNER
-echo "VGITIAN_SIGNER=$(echo $VGITIAN_SIGNER | tr '[:upper:]' '[:lower:]')">> user_config.env  
+read -r VGITIAN_SIGNER
+echo "export VGITIAN_SIGNER=$(echo "${VGITIAN_SIGNER}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 
 echo "Code Version to Build [0.14.6|master|git-commit]"
-read VGITIAN_VERSION
-echo "VGITIAN_VERSION=$(echo $VGITIAN_VERSION | tr '[:upper:]' '[:lower:]')">> user_config.env  
+read -r VGITIAN_VERSION
+echo "export VGITIAN_VERSION=$(echo "${VGITIAN_VERSION}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 
 echo "Build specific commit?"
-read VGITIAN_COMMIT
-echo "VGITIAN_COMMIT=$(echo $VGITIAN_COMMIT | tr '[:upper:]' '[:lower:]')">> user_config.env  
+read -r VGITIAN_COMMIT
+echo "export VGITIAN_COMMIT=$(echo "${VGITIAN_COMMIT}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 
 echo "Code git URL"
-read VGITIAN_URL
-echo "VGITIAN_URL=$(echo $VGITIAN_URL | tr '[:upper:]' '[:lower:]')">> user_config.env  
+read -r VGITIAN_URL
+echo "export VGITIAN_URL=$(echo "${VGITIAN_URL}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 
 #echo "Number of Processors to tell make to use"
-#read VGITIAN_PROC
-#echo "VGITIAN_PROC=$(echo $VGITIAN_PROC | tr '[:upper:]' '[:lower:]')">> user_config.env  
+#read -r -n1 VGITIAN_PROC
+#echo "export VGITIAN_PROC=$(echo "${VGITIAN_PROC}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 uname="$(uname| tr '[:upper:]' '[:lower:]')"
 if [ "${uname}" = "darwin" ] ; then
-  echo "VGITIAN_PROC=$(sysctl -n hw.ncpu)" >> user_config.env
+  echo "export VGITIAN_PROC=$(sysctl -n hw.ncpu)" >> user_config.env
 else
-  echo "VGITIAN_PROC=$(nproc)" >> user_config.env
+  echo "export VGITIAN_PROC=$(nproc)" >> user_config.env
 fi
 
-echo "VGITIAN_MEM=3500" >> user_config.env
+echo "export VGITIAN_MEM=3500" >> user_config.env
+
 
 mv user_config.env USER_CONFIG.env
