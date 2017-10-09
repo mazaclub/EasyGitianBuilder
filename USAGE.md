@@ -19,6 +19,8 @@
  Rebuilding the VM will destroy it in vagrant and virtualbox, and provision a fresh debian box
  ready to build.  
 
+ Destroying the VM will remove it from Vagrant and Virtualbox, but not build a new one. The Vagrant debian/contribjessie "base box" will remain in your $HOME/.vagrant.d/boxes directory. 
+
  Cleaning the VM will restore from snapshot - this is all that should be needed to run builds with 
  a fresh system. 
 
