@@ -96,13 +96,13 @@ build machines
     - optionally acquire the OSX SDK tarball required for 
       building OSX versions, and put in the inputs directory made above
       
-    - start the machine the first time and provision all gitian's requirements
+  start the machine the first time and provision all gitian's requirements
 
   ```
   vagrant up
   ```
 
-    - Once provisioning for the machine is complete, halt and make a snapshot
+  Once provisioning for the machine is complete, halt and make a snapshot
 
   ```
   vagrant halt
@@ -111,15 +111,13 @@ build machines
   vagrant ssh
   ```
 
-    - Once you've logged in via `vagrant ssh` you can run: 
+  Once you've logged in via `vagrant ssh` you can run: 
 
   ```
   ./run-gitian-build
   ```
-
-    - This directory is mounted in the VM as /host_vagrantdir
        
-    - to completely rebuild your VM and lose all snapshots
+  to completely rebuild your VM and lose all snapshots
 
   ```
   vagrant destroy
@@ -127,4 +125,6 @@ build machines
   ```
     
     - Scripts intended to be used inside the vm are in all lowercase - other scripts are intended for use on the host
+      (darwin-base-system.sh and linux-base-system.sh are exceptions at this time)
  
+    - This directory is mounted in the VM as /host_vagrantdir
