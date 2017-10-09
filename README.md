@@ -95,13 +95,13 @@ build machines
        cache
     - optionally acquire the OSX SDK tarball required for 
       building OSX versions, and put in the inputs directory made above
-    - run
+      
+    - start the machine the first time and provision all gitian's requirements
 
-      ```
-      vagrant up
-      ```
+  ```
+  vagrant up
+  ```
 
-      to start the machine the first time and provision all gitian's requirements
     - Once provisioning for the machine is complete, halt and make a snapshot
 
   ```
@@ -111,13 +111,14 @@ build machines
   vagrant ssh
   ```
 
-    - on the VM commandline run
+    - Once you've logged in via `vagrant ssh` you can run: 
 
   ```
   ./run-gitian-build
   ```
 
-    - This directory is mounted in the VM as /host_vagrantdir 
+    - This directory is mounted in the VM as /host_vagrantdir
+       
     - to completely rebuild your VM and lose all snapshots
 
   ```
