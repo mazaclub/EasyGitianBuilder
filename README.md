@@ -103,12 +103,12 @@ vagrant up
       to start the machine the first time and provision all gitian's requirements
     - Once provisioning for the machine is complete, halt and make a snapshot
 
-            ```
-            vagrant halt
-            vagrant snapshot save default Gitian-Clean
-            vagrant up
-            vagrant ssh
-            ```
+  ```
+  vagrant halt
+  vagrant snapshot save default Gitian-Clean
+  vagrant up
+  vagrant ssh
+  ```
 
     - on the VM commandline run
 
