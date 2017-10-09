@@ -84,9 +84,10 @@ build machines
 ## Windows, and manual usage
    Windows users will need to install Vagrant and VirtualBox (and the extension pack) 
    Once those are installed, clone this repository to a directory on your machine
+   
     - ensure that git is not configured to change Line Endings to CRLF 
     - ensure that editors don't add CRLF to any files you edit
-   
+
     - make directories in this directory for Vbox Shared Folders to save your builds
        binaries
        results
@@ -96,9 +97,9 @@ build machines
       building OSX versions, and put in the inputs directory made above
     - run
 
-  ```
-  vagrant up
-  ```
+    ```
+    vagrant up
+    ```
 
       to start the machine the first time and provision all gitian's requirements
     - Once provisioning for the machine is complete, halt and make a snapshot
