@@ -96,9 +96,9 @@ build machines
       building OSX versions, and put in the inputs directory made above
     - run
 
-            ```
-            vagrant up
-            ```
+```
+vagrant up
+```
 
       to start the machine the first time and provision all gitian's requirements
     - Once provisioning for the machine is complete, halt and make a snapshot
