@@ -64,7 +64,7 @@ if [ -f ./.prereq_install_complete ] ; then
   echo "Install already completed"
 else
   echo "Attempting to help you install Vagrant & Virtualbox"
-  ./"${HOSTOS}"-base-system.sh
+  ./"${HOSTOS}"-Base-System.sh
 fi
 }
 

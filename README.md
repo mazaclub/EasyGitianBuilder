@@ -12,6 +12,122 @@ EasyGitian is usuable on Windows, but requires the builder to use vagrant
 to operate the Virtual Machine directly, rather than having most operations scripted
 (batch/powershell scripts welcome!) 
 
+## Quick Start
+
+### OSX
+  - Ensure sufficient disk space is available
+    EasyGitian will require there be 50GB available for Virtualbox VMs 
+    and 20GB available for its own directory. Typically these will be in
+    `/Users/{YOUR_ACCT_NAME}/Virtualbox VMs/`
+    `/Users/{YOUR_ACCT_NAME}/easygitianbuilder`
+    If these are on the same volume, 50GB is sufficient
+  - Install GPG
+  - Install Xcode OR "Developer Command Line Tools"
+  - Clone this repo
+  - Run EasyGitian to install Vagrant & Virtualbox, build a VM and build software
+
+If you need assistance installing GPG and Xcode tools and getting this repo cloned via git,
+an installer is provided:
+
+(Open a Terminal)
+
+  ```
+  curl -O https://github.com/mazaclub/EasyGitian/Install-EasyGitian.sh
+  ./Install-EasyGitian.sh
+  ```
+You'll be given a choice to install GPG from GPGTools.org or via Homebrew, and
+install either Xcode or the required Developer Command Line tools. This repo 
+will be cloned, and EasyGitian will be started for you.
+
+If your system already has this, you can simply clone the repo, and get started:
+
+  ```
+  git clone https://github.com/mazaclub/EasyGitianBuilder
+  cd ./easygitianbuilder
+  ./EasyGitian
+  ```
+
+Vagrant & Virtualbox will be downloaded, verified, and installed
+A Vagrant "base box" (debian-contribjessie) will be downloaded
+EasyGitian will build a Vagrant/Virtualbox VM and setup a build environment
+A build will begin.
+  
+To run another build, simply open a terminal and
+  ```
+  cd $HOME/easygitianbuilder
+  ./EasyGitian
+  ```
+
+Additional help is available in easygitianbuilder/USAGE.md or
+  ```
+  cd $HOME/easygitianbuilder
+  ./EasyGitian -h
+  ```
+
+
+
+### Linux (Debian)
+  
+Open a Terminal window
+
+  ```
+  git clone https://github.com/mazaclub/easygitianbuilder
+  cd ./easygitianbuilder
+  ./EasyGitian
+  ```
+
+Vagrant downloaded, verified, and installed, your apt-sources will be updated,
+and Virtualbox (and extension pack) will be installed via apt.
+
+A Vagrant "base box" (debian-contribjessie) will be downloaded
+EasyGitian will build a Vagrant/Virtualbox VM and setup a build environment
+A build will begin.
+  
+To run another build, simply open a terminal and
+  ```
+  cd $HOME/easygitianbuilder
+  ./EasyGitian
+  ```
+
+Additional help is available in easygitianbuilder/USAGE.md or
+  ```
+  cd $HOME/easygitianbuilder
+  ./EasyGitian -h
+  ```
+
+
+### Windows
+
+You will need to install the following applications:
+
+  git
+  gpg
+  VirtualBox
+  Vagrant
+
+It's recommended to install gpg first. Vagrant provides GPG signatures 
+for their downloads, which you should verify. Virtualbox appears to only 
+provide SHA256 sums to verify. Verify both Vagrant and Virtualbox, then install
+
+
+Once these are installed, use your git application to clone this repo
+Locate the directory git cloned EasyGitianBuilder to, and make 4 additional directories:
+
+  - binaries
+  - results
+  - inputs
+  - cache
+
+Open a command line prompt (Win+R cmd.exe)
+
+  ```
+  cd C:\Users\{YOUR_ACCT_NAME}\easygitianbuilder
+  vagrant up
+  vagrant ssh -c 'run-gitian-build'
+  ```
+See below for more information
+   
+
 ## Why Easy Gitian builder
 Gitian building is generally too difficult for most people to 
 get done easily, and reliably. Instructions are less than 
@@ -26,7 +142,7 @@ but it's unclear the intended use or operation of these VMs.
 LXC based building is an interim step - gitian-builder's gbuild script doesn't fully support bulding in virtualbox
 or other cloud-based VMs. 
 
-A similar project [gitian-docker](https://github.com/maza/gitian-docker) provides nearly the same functionality
+A similar project [gitian-docker](https://github.com/mazacoin/gitian-docker) provides nearly the same functionality
 but is less portable due to docker's changing handling of host filesytem access on Windows and OSX. Vagrant 
 orchestrated virtual machines seem more reliable on local systems than docker. Vagrant provides the ability to expand 
 to several VPS providers (notably AWS, DigitalOcean, Vultr), and will allow for EasyGitian to spawn high-powered ephemeral 
