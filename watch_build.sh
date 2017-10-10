@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 . /host_vagrantdir/USER_CONFIG.env
 
@@ -6,13 +6,12 @@
 
 test -f /home/vagrant/gitian-builder/.build_list || { echo "Build not started, try again later" ; exit 2; }
 
-y=$(wc -l /home/vagrant/gitian-builder/.build_list|awk '{print $1}')
-echo "$y"
-
-z=0
-while [ "$z" -ne "$y" ] ; do
- 
- echo "Waiting for build to begin install to LXC vm"
+builds=$(wc -l /home/vagrant/gitian-builder/.build_list|awk '{print $1}')
+while [ "$builds" -ge 1 ]; do
+ line=$(head -n 1 /home/vagrant/gitian-builder/.build_list)
+ printf "\nCurrent build: %s\n\n" "$line"
+ printf "Number of Builds to run: %s\n\n"  "$builds"
+ printf "\nWaiting for %s build to begin install to LXC vm\n\n" "$line"
  x=0
  while [ $x -eq 0 ] ; do
   #echo "waiting for install.log"
@@ -40,17 +39,21 @@ while [ "$z" -ne "$y" ] ; do
  done
 
  while true; do
-   sleep 30
+   sleep 5
    NEW=$(md5sum /home/vagrant/gitian-builder/var/build.log)
    if [ "$NEW" = "$LAST" ]; then
      kill "${BL_PID}" > /dev/null 2>&1
-     LAST="$NEW"
+     printf "\nBuild Log for %s Complete\n\n"  "$line"
+     break
    fi
+     LAST="$NEW"
  done
- test -f /home/vagrant/gitian-builder/var/done.log && { echo "Build complete" ; exit 0; }
- ((z++)) 
+ #test -f /home/vagrant/gitian-builder/var/done.log && { echo "Build complete" ; exit 0; }
+ sed -i '1d' /home/vagrant/gitian-builder/.build_list
+ builds=$(wc -l /home/vagrant/gitian-builder/.build_list|awk '{print $1}')
 done
-
+rm /home/vagrant/gitian-builder/.build_list
+printf "\nBuild List Complete - your build should be done.\n\n"
 
 
  
