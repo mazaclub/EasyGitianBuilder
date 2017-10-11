@@ -1,4 +1,5 @@
 #!/bin/bash -x
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
 ## This script runs inside the VM
 

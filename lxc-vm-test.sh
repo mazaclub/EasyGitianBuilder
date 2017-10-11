@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 cd /home/vagrant/gitian-builder || exit 2
 PATH=$PATH:$(pwd)/libexec
 make-clean-vm --suite trusty --arch amd64

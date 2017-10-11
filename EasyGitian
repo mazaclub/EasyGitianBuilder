@@ -1,9 +1,13 @@
 #!/bin/bash 
 
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
+
+
 
 HOSTOS=$(uname | tr '[:upper:]' '[:lower:]')
 #EG_VERSION=0.1.0
 
+trap cleanup INT TERM
 
 # Some functions
 die () {
@@ -22,6 +26,11 @@ die () {
      exit 999
      ;;
  esac
+}
+
+cleanup () {
+ test -f ./build_list && rm ./build_list
+ echo "Exiting EasyGitian"
 }
 
 check_diskspace () {
@@ -109,6 +118,7 @@ make_tarball () {
 }
 
 run_build () {
+ test -f ./build_list && rm ./build_list
  test -f  .prereq_install_complete || install_prereqs
  echo "Vagrant and Virtualbox installed"
  test -f ./inputs/MacOSX10.11.sdk.tar.gz || make_tarball
@@ -119,20 +129,28 @@ run_build () {
  echo "Virtualbox VM initialized"
  check_diskspace build && printf "\nDisk Space OK\n\n"
  vagrant status | grep running || vagrant up && \
-  echo "VM Started - running build" && \
-  vagrant ssh -c './run-gitian-build'
+ printf "VM Started - running build\n" && \
+ read -p "Watch Build in a new terminal?" -n 1 -r
+ echo
+ if [[ $REPLY =~ ^[Yy]$ ]]
+   then
+   ./EasyGitian watch_fromrun &
+   vagrant ssh -c './run-gitian-build'
+ else
+   vagrant ssh -c './run-gitian-build'
+ fi
 }
 
 clean_vm () {
  if [ ! -f .vbox-vm-initialized ]; then 
    echo "VM Not initialized" 
-   exit 2
+   exit 4
  fi
    
  vagrant status | grep "not created" && vm_created=no
  if [ "${vm_created}" = "no" ]; then
    echo "VM Not created" 
-   exit 1
+   exit 5
  fi
 
  vagrant status | grep running && vagrant halt
@@ -152,7 +170,6 @@ clean_vm () {
  echo "Looks like you may not have a good snapshot"
  echo "You may want to run:"
  echo "./EasyGitian rebuild_vm"
- 
 }
 
 destroy_vm () {
@@ -178,12 +195,32 @@ halt_vm () {
  exit 0
 }
 
+watch_fromrun () {
+# if [ "$1" = "fromrun" ]; then
+     started=$SECONDS
+     while [ ! -f ./build_list ]; do
+       sleep 10
+       if [ "$SECONDS" -ge "$(( started + 180))" ];then
+        printf "\nBuild is taking too long to start\n Can't open new window"
+	exit 88
+       fi
+     done
+     if [ "$HOSTOS" = "darwin" ]; then
+       osascript <<END
+       tell application "Terminal"
+            do script "cd \"$(pwd)\";./EasyGitian watch_build"
+       end tell
+END
+     elif [ "$HOSTOS" = "linux" ]; then
+       echo "Sorry - not implemented. Open a new terminal and run"
+       echo "./EasyGitian watch_build"
+       #xterm -display $DISPLAY -e
+     fi
+#  fi
+}
 watch_build () {
   echo " "
   echo "Watching build logs"
-  echo "NOTE: watch_build only watches a single OS build"
-  echo "      at this time. Restart once each for Linux,"
-  echo "      Windows, and OSX builds"
   vagrant ssh -c '/host_vagrantdir/watch_build.sh'
   exit
 }
@@ -206,29 +243,31 @@ toggle_gui () {
 
 case "$1" in
 
-install_prereqs) install_prereqs
+install_prereqs) install_prereqs # Get Vagrant and Vbox
                ;;
-      first_run) first_run
+      first_run) first_run # First run after install or rebuild_vm
                ;;
-       make_env) make_env
+       make_env) make_env # Make USER_CONFIG.evn
                ;;
-   make_tarball) make_tarball
+   make_tarball) make_tarball # make OSX SDK tarball
                ;;
-      run_build) run_build
+      run_build) run_build # default, check system & run build
                ;;
-       clean_vm) clean_vm
+       clean_vm) clean_vm # restore vm from snapshot
                ;;
-     rebuild_vm) rebuild_vm
+     rebuild_vm) rebuild_vm # rebuild from base box
                ;;
-     destroy_vm) destroy_vm
+     destroy_vm) destroy_vm # wipe out vm and vdi files
                ;;
-      reboot_vm) reboot_vm
+      reboot_vm) reboot_vm # reboot & reread vagrantfile
                ;;
-	halt_vm) halt_vm
+	halt_vm) halt_vm # shut down
 	       ;;
-    watch_build) watch_build
+    watch_build) watch_build # watch build progress in this terminal
                ;;
-     toggle_gui) toggle_gui
+     toggle_gui) toggle_gui # toggle Vbos headless or GUI mode
+               ;;
+  watch_fromrun) watch_fromrun # open new terminal window to watch build
                ;;
 	     "") echo "No option specified, running build"
 	         run_build

@@ -1,4 +1,5 @@
 #!/bin/bash 
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
 if [ -f .vbox-vm-initialized ] ; then
   echo "Your VM had been initialized previously"

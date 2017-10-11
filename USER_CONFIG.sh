@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
 ## This script runs from EasyGitian(make_env) on the host
 ## This script runs inside the Virtualbox VM if /host_vagrantdir/USER_CONFIG.env is not found

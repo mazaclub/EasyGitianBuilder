@@ -1,12 +1,24 @@
 #!/bin/bash
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
 ## This script runs inside the virtualbox vm
 
-set -x
+#set -x
+# Portions Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan) 
 # Copyright (c) 2016 The Bitcoin Core developers
+
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+cleanup () {
+  test -f /home/vagrant/gitian-builder/.build_list \
+    && rm /home/vagrant/gitian-builder/.build_list
+  test -f /host_vagrantdir/build_list \
+    && rm /host_vagrantdir/build_list
+  echo "Exiting gitian build"
+  exit 99
+}
+trap cleanup INT EXIT
 # What to do
 if [ -f /host_vagrantdir/USER_CONFIG.env ]; then
   . /host_vagrantdir/USER_CONFIG.env
@@ -15,7 +27,17 @@ else
   . /host_vagrantdir/USER_CONFIG.env
 fi
 
-
+# Check for sufficient diskspace to complete build
+printf "\nChecking disk space for your build...\n\n"
+diskspace=$(df -k "$HOME/gitian-builder" |grep dev|awk '{print $4}')
+if [ "$diskspace" -le 20000000 ]; then
+   availspace=$(( diskspace / 1048576))
+   printf "\nInsufficient space - 20GB required %s available \n" "$availspace"
+   printf "\nThis shouldn't happen, you should have a second disk in your VM\n"
+   printf "\nYou can run\n./EasyGitian rebuild_vm\nto get a fresh VM with sufficient space\n"
+   printf "\nAborting Build\n"
+   exit 1
+fi
 
 sign=${VGITIAN_SIGN:-false}
 verify=${VGITIAN_VERIFY:-false}
@@ -39,6 +61,9 @@ if [[ $osx = true ]]
 then
   echo "osx" >> gitian-builder/.build_list
 fi
+cp gitian-builder/.build_list /host_vagrantdir/build_list
+test -f gitian-builder/var/install.log && rm gitian-builder/var/install.log
+test -f gitian-builder/var/build.log && rm gitian-builder/var/build.log
 
 # Other Basic variables
 SIGNER=${VGITIAN_SIGNER:-"notconfiguredgitian@mazacoin.org"}
@@ -54,18 +79,18 @@ scriptName=$(basename -- "$0")
 signProg="gpg --detach-sign"
 commitFiles=true
 
-echo "Sign: $sign"
-echo "Verify: $verify"
-echo "Build: $build"
-echo "Build Linux: $linux"
-echo "Build Windows: $windows"
-echo "Build OSX: $osx"
-echo "Signer: $SIGNER"
-echo "Version: $VERSION"
-echo "Commit: $commit"
-echo "URL: $url"
-echo "Processors: $proc"
-echo "Memory: $mem"
+printf "\nSign: %s" "$sign"
+printf "\nVerify: %s" "$verify"
+printf "\nBuild: %s" "$build"
+printf "\nBuild Linux: %s" "$linux"
+printf "\nBuild Windows: %s" "$windows"
+printf "\nBuild OSX: %s" "$osx"
+printf "\nSigner: %s" "$SIGNER"
+printf "\nVersion: %s" "$VERSION"
+printf "\nCommit: %s" "$commit"
+printf "\nURL: %s" "$url"
+printf "\nProcessors: %s" "$proc"
+printf "\nMemory: %s" "$mem"
 
 # Help Message
 read -r -d '' usage <<- EOF

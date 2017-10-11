@@ -61,7 +61,7 @@ Vagrant.configure("2") do |config|
   #
    config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
-     vb.gui = true
+     vb.gui = false
      vb.name = "Gitian-builder_jessie"
 
   #
@@ -134,8 +134,7 @@ Vagrant.configure("2") do |config|
    su - vagrant -c /host_vagrantdir/prep_gitian.sh
    /etc/rc.local
    su - vagrant -c '/host_vagrantdir/lxc-vm-test.sh'
-   cp /host_vagrantdir/gitian-build.sh /home/vagrant/run-gitian-build
-   #su - vagrant -c '/home/vagrant/run-gitian-build'
+   ln -s /host_vagrantdir/gitian-build.sh /home/vagrant/run-gitian-build
    SHELL
 
 

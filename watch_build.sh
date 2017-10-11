@@ -1,4 +1,5 @@
 #!/bin/bash 
+# Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
 . /host_vagrantdir/USER_CONFIG.env
 
@@ -21,6 +22,7 @@ while [ "$builds" -ge 1 ]; do
     x=1
   else
     echo "Install process is not started yet"
+    test -f /home/vagrant/gitian-builder/.build_list || { echo "Build Ended" ; exit 1; }
     sleep 5
   fi
  done
@@ -33,13 +35,13 @@ while [ "$builds" -ge 1 ]; do
     echo "tail"
     x=1
   else 
+    test -f /home/vagrant/gitian-builder/.build_list || { echo "Build Ended" ; exit 1; }
     echo "still waiting for build.log"
     sleep 5
   fi
  done
 
  while true; do
-   sleep 5
    NEW=$(md5sum /home/vagrant/gitian-builder/var/build.log)
    if [ "$NEW" = "$LAST" ]; then
      kill "${BL_PID}" > /dev/null 2>&1
@@ -47,9 +49,10 @@ while [ "$builds" -ge 1 ]; do
      break
    fi
      LAST="$NEW"
+   sleep 60
  done
- #test -f /home/vagrant/gitian-builder/var/done.log && { echo "Build complete" ; exit 0; }
- sed -i '1d' /home/vagrant/gitian-builder/.build_list
+ test -f /home/vagrant/gitian-builder/.build_list || { echo "Build Ended" ; exit 1; }
+ #sed -i '1d' /home/vagrant/gitian-builder/.build_list
  builds=$(wc -l /home/vagrant/gitian-builder/.build_list|awk '{print $1}')
 done
 rm /home/vagrant/gitian-builder/.build_list
