@@ -14,6 +14,17 @@ to operate the Virtual Machine directly, rather than having most operations scri
 
 ## Quick Start
 
+EasyGitian will attempt to install what is needed to build a VM and install gitian 
+The build environment is configured, and you'll be asked
+  - which steps to run (build, sign, verify) 
+  - which OSes to build for (Linux, Windows, OSX) 
+  - what release version and/or git commit tag to build from
+  - signer ID
+  - git url to fetch coin code from
+
+You should be able to build most coins that provide a contrib/gitian-descriptors directory
+in the same fashion as Bitcoin, BitcoinCash, Maza. 
+
 ### OSX
   - Ensure sufficient disk space is available
     EasyGitian will require there be 50GB available for Virtualbox VMs 

@@ -50,9 +50,12 @@ echo "Build specific commit?"
 read -r VGITIAN_COMMIT
 echo "export VGITIAN_COMMIT=$(echo "${VGITIAN_COMMIT}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 
+
 echo "Code git URL"
 read -r VGITIAN_URL
 echo "export VGITIAN_URL=$(echo "${VGITIAN_URL}" | tr '[:upper:]' '[:lower:]')">> user_config.env
+echo "export VGITIAN_COIN=$(echo "${VGITIAN_URL}" | tr '[:upper:]' '[:lower:]'|awk -F\/ '{print $NF}')" >> user_config.env
+
 
 #echo "Number of Processors to tell make to use"
 #read -r -n1 VGITIAN_PROC
