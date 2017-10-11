@@ -5,7 +5,15 @@
    - binaries copied to correct output dirs
    - results saved by date/OS/coin
 
+## multi coin operation 
+   - get suite from gitian-descriptors for each coin
+   - make-base-vm for each suite needed
+   - get repo BEFORE running build
+   - change prep_gitian on the fly to setup the right first build
+
 ## signing and verification are not implemented
+   - get gitian.sigs for each coin (add to USER_CONFIG)
+  
 
 ## more basic sanity checking is required throughout
    - check available host ram 

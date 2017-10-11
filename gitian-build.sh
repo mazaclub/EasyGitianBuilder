@@ -344,7 +344,7 @@ then
             echo ""
 	    echo "Compiling ${VERSION} Linux"
 	    echo ""
-	    ./bin/gbuild -j "${proc}" -m "${mem}" --commit bitcoin="${COMMIT}" --url bitcoin="${url}" ../"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
+	    ./bin/gbuild -j "${proc}" -m "${mem}" --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" ../"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-linux --destination ../gitian.sigs/ ../"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	    cp build/out/bitcoin-*.tar.gz build/out/src/bitcoin-*.tar.gz ../bitcoin-binaries/"${VERSION}"
             sed -i '/linux/d' .build_list
@@ -358,7 +358,7 @@ then
 	    echo ""
 	    echo "Compiling ${VERSION} Windows"
 	    echo ""
-	    ./bin/gbuild -j "${proc}" -m "${mem}" --commit bitcoin="${COMMIT}" --url bitcoin="${url}" ../"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
+	    ./bin/gbuild -j "${proc}" -m "${mem}" --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" ../"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-win-unsigned --destination ../gitian.sigs/ ../"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	    cp build/out/bitcoin-*-win-unsigned.tar.gz inputs/bitcoin-win-unsigned.tar.gz
 	    cp build/out/bitcoin-*.zip build/out/bitcoin-*abc-.exe ../bitcoin-binaries/"${VERSION}"
@@ -373,7 +373,7 @@ then
 	    echo ""
 	    echo "Compiling ${VERSION} Mac OSX"
 	    echo ""
-	    ./bin/gbuild -j "${proc}" -m "${mem}" --commit bitcoin="${COMMIT}" --url bitcoin="${url}" ../"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
+	    ./bin/gbuild -j "${proc}" -m "${mem}" --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" ../"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
 	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-osx-unsigned --destination ../gitian.sigs/ ../"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
 	    cp build/out/bitcoin-*-osx-unsigned.tar.gz inputs/bitcoin-osx-unsigned.tar.gz
 	    cp build/out/bitcoin-*.tar.gz build/out/bitcoin-*.dmg ../bitcoin-binaries/"${VERSION}"
