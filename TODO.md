@@ -7,7 +7,8 @@
 
 ## signing and verification are not tested
    - steps more separated, untested
-  
+   - Verification & key import tested and working
+   - Assertion and commit to gitian.sigs repos not yet fully implemented
 
 ## more basic sanity checking is required throughout
    - check available host ram 
@@ -17,7 +18,6 @@
    - Vbox warns about using more than the number of *physhical* processors 
      give use option of reducing number of procs used in VM
 
-
 ## add option to clear cache & inputs directories
    - clean built deps per coin
    - clean downloaded cache/common
@@ -26,7 +26,6 @@
    - find existing versions, ask before replacing 
    - install to /usr/local/bin on linux
    - install to (option) /Applications or ~/Applications on OSX
-
 
 ## linux install 
    - working on Debian Jessie host

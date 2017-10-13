@@ -32,6 +32,17 @@ EasyGitian will attempt to read the gitian-descriptors files to determine
 what build system and architecture you need in your build environment 
 to build your chosen coin. (please post errors in the github issues in this repo) 
 
+Look in the repo library for your chosen coin for {coin}-detached-sigs and gitian.sigs repositories
+(i.e. https://github.com/mazacoin/gitian.sigs https://github.com/pivx-project/pivx-detached-sigs)
+These are needed to assert and/or verify your build. When EasyGitian configures your build,
+it will ask for these URLs and ask if you'd like to Verify the builds.
+
+When EasyGitian verifies the build, it will ensure you have the keys found in 
+(i.e. https://github.com/mazacoin/maza/contrib/gitian-keys) and compare the hashes from your build 
+to those found in the gitian.sigs repo, and show you any mismatches. 
+
+Future versions will fully support developer's assertions and commit assertions to the gitian.sigs repo
+
 
 ### OSX
   - Ensure sufficient disk space is available

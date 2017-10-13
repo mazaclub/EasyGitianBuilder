@@ -457,6 +457,13 @@ fi
 # Verify the build
 if [[ $verify = true ]]
 then
+        # import keys for existing signers
+        pushd ./"${COIN}"/contrib/gitian-keys
+        for sig in *.gpg ; do
+	  gpg --import "$sig"
+          #ln -s "$sig" "$sig.pgp" 
+        done 
+	popd
 	# Linux
 	pushd ./gitian-builder
 	echo ""
