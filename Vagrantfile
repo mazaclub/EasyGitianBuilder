@@ -52,6 +52,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./cache", "/home/vagrant/gitian-builder/cache"
   config.vm.synced_folder "./inputs", "/home/vagrant/gitian-builder/inputs"
   config.vm.synced_folder "./results", "/home/vagrant/gitian-results"
+  config.vm.synced_folder "./repos", "/home/vagrant/repos"
   
   config.vm.define "Gitian-builder_jessie"
 

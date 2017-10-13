@@ -5,6 +5,7 @@
        install_prereqs - Install Vagrant & Virtualbox
        first_run - run builder VM for the first time 
        make_env - make USER_CONFIG.env for gitian-builder options
+       get_repos - git clone coin codebase, gitian.sigs, detached-sigs repos
        make_tarball - make OSX SDK tarball needed to build OSX version
        clean_vm - Revert to snapshot made in first_run
        rebuild_vm - destroy and recreate the virtualbox VM  

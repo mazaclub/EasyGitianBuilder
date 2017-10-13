@@ -9,6 +9,7 @@
    - steps more separated, untested
    - Verification & key import tested and working
    - Assertion and commit to gitian.sigs repos not yet fully implemented
+   - gpg and git credentials need to be available inside the VBox VM 
 
 ## more basic sanity checking is required throughout
    - check available host ram 
@@ -30,6 +31,7 @@
 ## linux install 
    - working on Debian Jessie host
    - need to add install for CentOS & Ubuntu
+   - make sdk tarball
 
 ## Windows batch/powershell programming
   - make Vagrant/Virtualbox/SDK installation automated on Windows 

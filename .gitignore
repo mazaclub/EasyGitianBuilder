@@ -9,6 +9,8 @@ binaries/*
 cache/*
 inputs/*
 results/*
+repos/
+!*/.easygitian-dir
 .vagrant
 *.vdi
 *.vmdk

@@ -77,7 +77,7 @@ echo "export VGITIAN_ASSERT=$(echo "${VGITIAN_ASSERT}" | tr '[:upper:]' '[:lower
    read -r -n1 VGITIAN_SIGN
    echo
    echo "export VGITIAN_SIGN=$(echo "${VGITIAN_SIGN}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')" >> user_config.env
-   echo "Build Signer"
+   echo "Build Signer (required)"
    read -r VGITIAN_SIGNER
    echo
    echo "export VGITIAN_SIGNER=$(echo "${VGITIAN_SIGNER}" | tr '[:upper:]' '[:lower:]')">> user_config.env

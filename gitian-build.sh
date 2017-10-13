@@ -310,8 +310,8 @@ if [[ $setup = true ]]
 then
     sudo apt-get install ruby apache2 git apt-cacher-ng python-vm-builder qemu-kvm qemu-utils
     #git clone https://github.com/bitcoin-core/gitian.sigs.git
-    git clone "$sigrepo" "${COIN}"-gitian.sigs
-    git clone "$detachedsigrepo" "${COIN}"-detached-sigs
+    git clone "$sigrepo" repos/"${COIN}"-gitian.sigs
+    git clone "$detachedsigrepo" repos/"${COIN}"-detached-sigs
     git clone https://github.com/devrandom/gitian-builder.git
     pushd ./gitian-builder
     if [[ -n "$USE_LXC" ]]
@@ -326,14 +326,21 @@ fi
 
 # Set up build
 echo "Checking for initial ${COIN} git directories - codebase, gitian.sigs, detached-sigs"
+pushd repos
 test -d ./"${COIN}" || { echo "${COIN} git directory not found, cloning..."; git clone "$url"; }
 test -d ./"${COIN}-gitian.sigs" || { echo "${COIN} gitian.sigs directory not found, cloning..."; git clone "$sigrepo" "${COIN}"-gitian.sigs; }
 test -d ./"${COIN}-detached-sigs" || { echo "${COIN} detached-sigs directory not found, cloning..."; git clone "$detachedsigrepo" "${COIN}"-detached-sigs; }
-
+pushd ./"${COIN}"
+# check current descriptors 
+#git checkout "${VERSION}"
+git fetch
+git checkout "${COMMIT}"
+popd
 # make sure we have a base-vm made
 suites="$(shyaml get-value suites <  "${COIN}"/contrib/gitian-descriptors/gitian-linux.yml|awk '{print $2}')"
 arches="$(shyaml get-value architectures  <  "${COIN}"/contrib/gitian-descriptors/gitian-linux.yml|awk '{print $2}')"
 
+popd # back to /home/vagrant
 for suite in $suites ; do
   for arch in ${arches} ; do
     pushd ~/gitian-builder || exit 4
@@ -344,10 +351,6 @@ for suite in $suites ; do
 done
 
 
-pushd ./"${COIN}"
-git fetch
-git checkout "${COMMIT}"
-popd
 
 # Build
 if [[ $build = true ]]
@@ -367,7 +370,7 @@ then
 	mkdir -p inputs
 	wget -N -P inputs $osslPatchUrl
 	wget -N -P inputs $osslTarUrl
-	make -C ../"${COIN}"/depends download SOURCES_PATH="$(pwd)"/cache/common
+	make -C ../repos/"${COIN}"/depends download SOURCES_PATH="$(pwd)"/cache/common
 
 	# Linux
 	if [[ $linux = true ]]
@@ -377,12 +380,12 @@ then
 	    echo ""
 	    ./bin/gbuild -j "${proc}" -m "${mem}" \
 	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
-	      ../"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
+	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	    if [[ $assert = true ]]
 	    then
 	      ./bin/gsign -p $signProg --signer "$SIGNER" \
-	        --release "${VERSION}"-linux --destination ../"${COIN}"-gitian.sigs/ \
-		../"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
+	        --release "${VERSION}"-linux --destination ../repos/"${COIN}"-gitian.sigs/ \
+		../repos/"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	    fi
 	    cp build/out/"${COIN}"-*.tar.gz build/out/src/"${COIN}"-*.tar.gz \
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
@@ -399,12 +402,12 @@ then
 	    echo ""
 	    ./bin/gbuild -j "${proc}" -m "${mem}" \
 	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
-	      ../"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
+	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	    if [[ $assert = true ]]
 	    then
 	       ./bin/gsign -p $signProg --signer "$SIGNER" \
-	         --release "${VERSION}"-win-unsigned --destination ../"${COIN}"-gitian.sigs/ \
-		 ../"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
+	         --release "${VERSION}"-win-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
+		 ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	    fi
 	    cp build/out/"${COIN}"-*-win-unsigned.tar.gz inputs/"${COIN}"-win-unsigned.tar.gz
 	    cp build/out/"${COIN}"-*.zip build/out/"${COIN}"-*.exe \
@@ -422,12 +425,12 @@ then
 	    echo ""
 	    ./bin/gbuild -j "${proc}" -m "${mem}" \
 	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
-	      ../"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
+	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
 	    if [[ $assert = true ]]
 	    then
 	    ./bin/gsign -p $signProg --signer "$SIGNER" \
-	      --release "${VERSION}"-osx-unsigned --destination ../"${COIN}"-gitian.sigs/ \
-	      ../"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
+	      --release "${VERSION}"-osx-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
+	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
 	    fi
 	    cp build/out/"${COIN}"-*-osx-unsigned.tar.gz inputs/"${COIN}"-osx-unsigned.tar.gz
 	    cp build/out/"${COIN}"-*.tar.gz build/out/"${COIN}"-*.dmg \
@@ -445,7 +448,7 @@ then
             echo ""
             echo "Committing ${VERSION} Unsigned Sigs"
             echo ""
-            pushd "${COIN}"-gitian.sigs
+            pushd repos/"${COIN}"-gitian.sigs
             git add "${VERSION}-linux/${SIGNER}"
             git add "${VERSION}-win-unsigned/${SIGNER}"
             git add "${VERSION}-osx-unsigned/${SIGNER}"
@@ -458,7 +461,7 @@ fi
 if [[ $verify = true ]]
 then
         # import keys for existing signers
-        pushd ./"${COIN}"/contrib/gitian-keys
+        pushd ./repos/"${COIN}"/contrib/gitian-keys
         for sig in *.gpg ; do
 	  gpg --import "$sig"
           #ln -s "$sig" "$sig.pgp" 
@@ -469,32 +472,32 @@ then
 	echo ""
 	printf "\nVerifying v%s Linux\n" "${VERSION}"
 	echo ""
-	./bin/gverify -v -d ../"${COIN}"-gitian.sigs/ -r "${VERSION}"-linux \
-	  ../"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
+	./bin/gverify -v -d ../repos/"${COIN}"-gitian.sigs/ -r "${VERSION}"-linux \
+	  ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	# Windows
 	echo ""
 	printf "\nVerifying v%s Windows\n" "${VERSION}"
 	echo ""
-	./bin/gverify -v -d ../"${COIN}"-gitian.sigs/ -r "${VERSION}"-win-unsigned \
-	  ../"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
+	./bin/gverify -v -d ../repos/"${COIN}"-gitian.sigs/ -r "${VERSION}"-win-unsigned \
+	  ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	# Mac OSX	
 	echo ""
 	printf "\nVerifying v%s Mac OSX\n" "${VERSION}"
 	echo ""	
-	./bin/gverify -v -d ../"${COIN}"-gitian.sigs/ -r "${VERSION}"-osx-unsigned \
-	  ../"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
+	./bin/gverify -v -d ../repos/"${COIN}"-gitian.sigs/ -r "${VERSION}"-osx-unsigned \
+	  ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
 	# Signed Windows
 	echo ""
 	echo "Verifying v${VERSION} Signed Windows"
 	echo ""
-	./bin/gverify -v -d ../"${COIN}"-gitian.sigs/ -r "${VERSION}"-win-signed \
-	  ../"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
+	./bin/gverify -v -d ../repos/"${COIN}"-gitian.sigs/ -r "${VERSION}"-win-signed \
+	  ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
 	# Signed Mac OSX
 	echo ""
 	echo "Verifying v${VERSION} Signed Mac OSX"
 	echo ""
-	./bin/gverify -v -d ../"${COIN}"-gitian.sigs/ -r "${VERSION}"-osx-signed \
-	  ../"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml	
+	./bin/gverify -v -d ../repos/"${COIN}"-gitian.sigs/ -r "${VERSION}"-osx-signed \
+	  ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
 	popd
 fi
 
@@ -510,8 +513,8 @@ then
 	    echo ""
 	    echo "Signing ${VERSION} Windows"
 	    echo ""
-	    ./bin/gbuild -i --commit signature="${COMMIT}" ../"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
-	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-win-signed --destination ../"${COIN}"-gitian.sigs/ ../"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
+	    ./bin/gbuild -i --commit signature="${COMMIT}" ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
+	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-win-signed --destination ../repos/"${COIN}"-gitian.sigs/ ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
 	    mv build/out/"${COIN}"-*win64-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}"
 	    mv build/out/"${COIN}"-*win32-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}"
 	fi
@@ -521,8 +524,8 @@ then
 	    echo ""
 	    echo "Signing ${VERSION} Mac OSX"
 	    echo ""
-	    ./bin/gbuild -i --commit signature="${COMMIT}" ../"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
-	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-osx-signed --destination ../"${COIN}"-gitian.sigs/ ../"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
+	    ./bin/gbuild -i --commit signature="${COMMIT}" ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
+	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-osx-signed --destination ../repos/"${COIN}"-gitian.sigs/ ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
 	    mv build/out/"${COIN}"-osx-signed.dmg ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}/${COIN}-${VERSION}"-osx.dmg
 	fi
 	popd
@@ -530,7 +533,7 @@ then
         if [[ $commitFiles = true ]]
         then
             # Commit Sigs
-            pushd "${COIN}"-gitian.sigs
+            pushd repos/"${COIN}"-gitian.sigs
             echo ""
             echo "Committing ${VERSION} Signed Sigs"
             echo ""

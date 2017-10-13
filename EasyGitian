@@ -112,6 +112,27 @@ launch_vm () {
 make_env () {
  test -f .skip_config ||  ./USER_CONFIG.sh
 }
+get_repos () {
+ test -f ./USER_CONFIG.env || { echo "USER_CONFIG.env not found, run EasyGitian make_env" ;exit 10; }
+ . ./USER_CONFIG.env
+ test -d ./repos || mkdir -p ./repos
+ pushd ./repos
+ # Set up build
+ echo "Checking for initial ${COIN} git directories - codebase, gitian.sigs, detached-sigs"
+ test -d ./"${VGITIAN_COIN}" || { echo "${VGITIAN_COIN} git directory not found, cloning..."; git clone "$VGITIAN_URL"; }
+ test -d ./"${VGITIAN_COIN}-gitian.sigs" || { echo "${VGITIAN_COIN} gitian.sigs directory not found, cloning..."; git clone "$VGITIAN_SIGREPO" "${VGITIAN_COIN}"-gitian.sigs; }
+ test -d ./"${VGITIAN_COIN}-detached-sigs" || { echo "${VGITIAN_COIN} detached-sigs directory not found, cloning..."; git clone "$VGITIAN_DETACHEDSIGREPO" "${VGITIAN_COIN}"-detached-sigs; }
+ pushd "${VGITIAN_COIN}"
+ # check current descriptors
+ if [ "$VGITIAN_COMMIT" = "false" ] ;then
+    git checkout v"${VGITIAN_VERSION}"
+ else
+    git checkout "${VGITIAN_VERSION}"
+ fi
+ popd
+ popd
+}
+# ma
 
 make_tarball () {
   test -f .skip_osx_builds || ./Make_SDK_tarball.sh
@@ -123,7 +144,10 @@ run_build () {
  echo "Vagrant and Virtualbox installed"
  test -f ./USER_CONFIG.env || make_env
  echo "Gitian settings configuration checked"
- test -f ./inputs/MacOSX10.11.sdk.tar.gz || make_tarball
+ get_repos
+ SDKNAME=$(grep "sdk.tar.gz" repos/"${VGITIAN_COIN}"/contrib/gitian-descriptors/gitian-osx.yml|grep -v BASEPREFIX)
+ SDKVER=$(echo "$SDKNAME"| awk -F [X.] '{print $2"."$3}')
+ test -f ./inputs/MacOSX"${SDKVER}".sdk.tar.gz || make_tarball
  echo "OSX SDK tarball checked"
  test -f .vbox-vm-initialized || first_run
  echo "Virtualbox VM initialized"
@@ -257,6 +281,8 @@ install_prereqs) install_prereqs # Get Vagrant and Vbox
    make_tarball) make_tarball # make OSX SDK tarball
                ;;
       run_build) run_build # default, check system & run build
+               ;;
+      get_repos) get_repos # make sure we have coin repo and sigs repos
                ;;
        clean_vm) clean_vm # restore vm from snapshot
                ;;
