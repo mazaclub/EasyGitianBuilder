@@ -34,6 +34,7 @@ while [ "$builds" -ge 1 ]; do
     tail -f /home/vagrant/gitian-builder/var/build.log & BL_PID=$! 
     echo "tail"
     x=1
+    sleep 5
   else 
     test -f /home/vagrant/gitian-builder/.build_list || { echo "Build Ended" ; exit 1; }
     echo "still waiting for build.log"
@@ -49,7 +50,7 @@ while [ "$builds" -ge 1 ]; do
      break
    fi
      LAST="$NEW"
-   sleep 60
+   sleep 90
  done
  test -f /home/vagrant/gitian-builder/.build_list || { echo "Build Ended" ; exit 1; }
  #sed -i '1d' /home/vagrant/gitian-builder/.build_list

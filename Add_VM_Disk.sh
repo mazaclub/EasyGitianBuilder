@@ -6,7 +6,12 @@
 
 DIR=$(pwd)
 
-VBoxManage createhd --filename "${DIR}/Gitian-builder_jessie.vdi" --size 50000 --format VDI --variant Standard
+## We need a minimum of a 40GB disk here
+## Build a 75GB disk so users can have 
+## lxc vms for multiple suites and architectures 
+## without running out of space
+
+VBoxManage createhd --filename "${DIR}/Gitian-builder_jessie.vdi" --size 75000 --format VDI --variant Standard
 VBoxManage storageattach "Gitian-builder_jessie" --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium "${DIR}/Gitian-builder_jessie.vdi"
 
 # To add another disk, copy and modify this file, incrementing the "port 1" and choosing another file name 

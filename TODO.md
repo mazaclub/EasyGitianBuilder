@@ -1,18 +1,12 @@
 # Improvements Needed
 
-
-## proper handling of build output
-   - binaries copied to correct output dirs
-   - results saved by date/OS/coin
-
 ## multi coin operation 
+   - Get correct OSX SDK tarball for each coin
    - get suite from gitian-descriptors for each coin
-   - make-base-vm for each suite needed
-   - get repo BEFORE running build
-   - change prep_gitian on the fly to setup the right first build
+      - tested on single suite builds - working
 
-## signing and verification are not implemented
-   - get gitian.sigs for each coin (add to USER_CONFIG)
+## signing and verification are not tested
+   - steps more separated, untested
   
 
 ## more basic sanity checking is required throughout
@@ -20,6 +14,19 @@
    - check for VT-x / AMD-v capabilities (linux hosts)
    - get correct user directory for VirtualBox_VMs dir
      (currently presumes a default installation) 
+   - Vbox warns about using more than the number of *physhical* processors 
+     give use option of reducing number of procs used in VM
+
+
+## add option to clear cache & inputs directories
+   - clean built deps per coin
+   - clean downloaded cache/common
+
+## add option to install built wallet
+   - find existing versions, ask before replacing 
+   - install to /usr/local/bin on linux
+   - install to (option) /Applications or ~/Applications on OSX
+
 
 ## linux install 
    - working on Debian Jessie host
@@ -37,21 +44,20 @@
 
 ## allow user to select specific builds for each OS
    - build script / typical gitian-descriptors for most coins 
-     will have multiple versions built for each OS 
+     will have multiple versions built for each OS in the HOSTS variable
    - users may wish to produce a verifiable build for only the 
      specific version they want to use
    - allow user to build for only 1 specific architecture rather
      than building 32 & 64 bit versions or architectures
+   - possibly change gitian-builder/var/build-script on the fly
+     but unclear if this affects results
 
-## gitian-build.sh (run-gitian-build) should copy data as completed
+## gitian-build.sh (run-gitian-build) (and gitian-builder/bin/gbuild) should copy data as completed
    - current build waits till entire descriptor for OS is complete.
    - this prevents completed deps from being saved if the build 
-     for that OS fails. 
-
-
-## De-bitcoin-ify builds
-  - factor variables to replace hardcoded "bitcoin" references
-  - allow to build multiple coins on the same VM
+     for that OS fails even if dep build was successful
+   - test mounting target-{ARCH}-{SUITE} to get files early
+  
 
 
 ## add other vagrant providers

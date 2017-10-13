@@ -1,5 +1,11 @@
 #!/bin/bash
 # Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
+#
+#
+# All this script does is make a clean VM to start up once 
+# and shutdown immediately - clears errors starting lxc
+# when we restart to run a build. 
+
 cd /home/vagrant/gitian-builder || exit 2
 PATH=$PATH:$(pwd)/libexec
 make-clean-vm --suite trusty --arch amd64

@@ -121,10 +121,10 @@ run_build () {
  test -f ./build_list && rm ./build_list
  test -f  .prereq_install_complete || install_prereqs
  echo "Vagrant and Virtualbox installed"
- test -f ./inputs/MacOSX10.11.sdk.tar.gz || make_tarball
- echo "OSX SDK tarball checked"
  test -f ./USER_CONFIG.env || make_env
  echo "Gitian settings configuration checked"
+ test -f ./inputs/MacOSX10.11.sdk.tar.gz || make_tarball
+ echo "OSX SDK tarball checked"
  test -f .vbox-vm-initialized || first_run
  echo "Virtualbox VM initialized"
  check_diskspace build && printf "\nDisk Space OK\n\n"
@@ -185,6 +185,11 @@ rebuild_vm () {
 reboot_vm () {
  echo "Rebooting Gitian-builder_jessie VM"
  vagrant reload
+}
+
+start_vm () {
+ echo "Starting Gitian-builder_jessie VM"
+ vagrant status | grep running || vagrant up
 }
 
 halt_vm () {

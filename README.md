@@ -21,9 +21,17 @@ The build environment is configured, and you'll be asked
   - what release version and/or git commit tag to build from
   - signer ID
   - git url to fetch coin code from
+  - git url for gitian signatures
+  - whether or not to assert your signature on the build
+  - whether or not to sign the final binaries
 
 You should be able to build most coins that provide a contrib/gitian-descriptors directory
 in the same fashion as Bitcoin, BitcoinCash, Maza. 
+
+EasyGitian will attempt to read the gitian-descriptors files to determine 
+what build system and architecture you need in your build environment 
+to build your chosen coin. (please post errors in the github issues in this repo) 
+
 
 ### OSX
   - Ensure sufficient disk space is available

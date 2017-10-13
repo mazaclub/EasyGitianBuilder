@@ -61,12 +61,12 @@ Vagrant.configure("2") do |config|
   #
    config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
-     vb.gui = false
+     vb.gui = true
      vb.name = "Gitian-builder_jessie"
 
   #
   #   # Customize the amount of memory on the VM:
-     vb.memory = "4096"
+     vb.memory = "4608"
      #vb.customize ["modifyvm", :id, "--cpus", `#{RbConfig::CONFIG['host_os'] =~ /darwin/ ? 'sysctl -n hw.ncpu' : 'nproc'}`.chomp]
 
  host = RbConfig::CONFIG['host_os']
