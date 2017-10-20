@@ -300,6 +300,10 @@ install_prereqs) install_prereqs # Get Vagrant and Vbox
                ;;
   watch_fromrun) watch_fromrun # open new terminal window to watch build
                ;;
+  show_bounties) cat ./BOUNTY.md # display info about paying or receiving bounties for work on Easy Gitian
+               ;;
+ show_addresses) cat ./BOUNTY_ADDRESSES.md # payment addresses
+               ;;
 	     "") echo "No option specified, running build"
 	         run_build
 	       ;;

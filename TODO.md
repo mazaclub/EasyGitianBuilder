@@ -31,6 +31,8 @@
 ## linux install 
    - working on Debian Jessie host
    - need to add install for CentOS & Ubuntu
+   - Vagrant should work with gentoo and Arch as well
+   - Devuan support
    - make sdk tarball
 
 ## Windows batch/powershell programming

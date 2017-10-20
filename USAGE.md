@@ -14,6 +14,8 @@
        halt_vm - stop Virtualbox VM, do not rebuild or destroy it
        watch_build - view build progress from another terminal
        toggle_gui - toggle Virtualbox GUI / Headless modes for VM
+       show_bounties - Need a special feature, coin, or vagrant provider supported? 
+       show_addresses - Help fund EasyGitian development or pay a bounty
 
        run_build - Run Gitian build 
 
