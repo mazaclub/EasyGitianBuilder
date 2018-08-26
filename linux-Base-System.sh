@@ -21,7 +21,7 @@ wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
 wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
 
 # Verify shasums signature via gpg
-gpg --keyserver hkp://pgp.mit.edu  --recv-keys 51852D87348FFC4C || exit 9
+gpg --keyserver pool.sks-keyservers.net --recv-keys 51852D87348FFC4C || exit 9
 gpg --verify vagrant_2.0.0_SHA256SUMS.sig vagrant_2.0.0_SHA256SUMS || exit 8
 
 # Verify shasum for download
