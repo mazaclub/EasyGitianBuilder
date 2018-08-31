@@ -16,8 +16,12 @@ deb_check_host () {
      printf "\nYou'll be asked for your password if we need to install \
 any software through apt\n\n"
      which wget > /dev/null 2>&1 || { sudo apt-get update ; sudo apt-get install -y wget; }
-     which gpg > /dev/null 2>&1 || { sudo apt-get update; sudo  apt-get install -y gpg; }
+     which gpg > /dev/null 2>&1 || { sudo apt-get update; sudo  apt-get install -y gnupg2; }
      which git > /dev/null 2>&1 || { sudo apt-get update; sudo apt-get install -y git; }
+     echo "if you see an error about dirmngr when running EasyGitian,"
+     echo "run the following commands" 
+     echo "sudo apt-get update && sudo apt-get purge -y gnupg && sudo apt-get install -y gnupg2"
+     read -n 1 -s -r -p "Press any key to continue"
      git clone https://github.com/mazaclub/easygitianbuilder
      cd ./easygitianbuilder || { echo "git clone seems to have failed"; exit 3; }
      exec ./EasyGitian
@@ -33,11 +37,14 @@ Homebrew is required if you later want to build wallets without gitian\n\nChoose
           # install homebrew
           printf "Begin Homebrew's install script from https://raw.githubusercontent.com/Homebrew/install/master/install\n"
           read -n 1 -s -r -p "Press any key to continue the installation";echo
-          /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+          test -f /usr/local/bin/brew || /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
           brew update
           brew install gnupg2
           ;;
     [Ww]) printf "\nInstalling GPGTools Suite\n"
+          printf "\nActually, no we aren't - temporarily disabled\n If you want GPGTools,download it from\n"
+          printf "https://releases.gpgtools.org/ \n and restart ./Install_EasyGitian.sh\n"
+          install_gpg_osx
           echo "curl tools"
           #curl -O https://releases.gpgtools.org/GPG_Suite-2017.1.dmg 
           gpgshasum=01705da33b9dadaf5282d28f9ef58f2eb7cd8ff6f19b4ade78861bf87668a061
@@ -54,7 +61,7 @@ Homebrew is required if you later want to build wallets without gitian\n\nChoose
           gpg --receive-keys E8A664480D9E43F5
           gpg --verify GPG_Suite-2017.1.dmg.sig || { echo "Something went wrong with the installation"; exit 4; }
           ;;
-    [Qq]) printf "\nTo try again just type:\n\n./install-easygitian.sh\n"
+    [Qq]) printf "\nTo try again just type:\n\n./Install_EasyGitian.sh\n"
           exit 3
         ;;
        *) printf "\nPlease choose [H]omebrew or GPGTools [W]ebsite [H/W]:\n"

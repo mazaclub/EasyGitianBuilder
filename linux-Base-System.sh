@@ -16,9 +16,9 @@
 
 get_vagrant () {
 # Get files 
-wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.deb
-wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
-wget https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
+wget -N https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.deb
+wget -N https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
+wget -N https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
 
 # Verify shasums signature via gpg
 gpg --keyserver pool.sks-keyservers.net --recv-keys 51852D87348FFC4C || exit 9
@@ -86,9 +86,9 @@ if [ "${OS}" = "debian" ] ; then
  esac
 else 
   echo "Attempting to download Virtualbox from official web source and install via dpkg"
-  wget http://download.virtualbox.org/virtualbox/5.1.28/virtualbox-5.1_5.1.28-117968~"${OS}~${osrelease}"_amd64.deb
-  wget http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
-  wget https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
+  wget -N http://download.virtualbox.org/virtualbox/5.1.28/virtualbox-5.1_5.1.28-117968~"${OS}~${osrelease}"_amd64.deb
+  wget -N http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
+  wget -N https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
   # Verify shasum for download
   grep virtualbox-5.1_5.1.28-117968~"${OS}~${osrelease}"_amd64.deb  SHA256SUMS | shasum -c || exit 6
   grep "117968.vbox-extpack" SHA256SUMS | shasum -c || exit 5

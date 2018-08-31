@@ -26,6 +26,9 @@ else
   /host_vagrantdir/USER_CONFIG.sh
   . /host_vagrantdir/USER_CONFIG.env
 fi
+echo "Checking env"
+echo "VGITIAN_BUILD = ${VGITIAN_BUILD}"
+env
 
 # set date for build output directories
 DATE="$(date +%Y%m%d%H%M)"
@@ -49,7 +52,8 @@ verify=${VGITIAN_VERIFY:-false}
 build=${VGITIAN_BUILD:-true}
 #setupenv=${VGITIAN_SETUPENV:-false}
 
-rm gitian-builder/.build_list > /dev/null 2>&1
+echo "Make the list of OS versions to build"
+test -f gitian-builder/.build_list && rm gitian-builder/.build_list > /dev/null 2>&1
 # Systems to build
 linux=${VGITIAN_LINUX:-true}
 if [[ $linux = true ]]
@@ -344,12 +348,14 @@ popd # back to /home/vagrant
 for suite in $suites ; do
   for arch in ${arches} ; do
     pushd ~/gitian-builder || exit 4
+    echo "check for base vm disk" 
      test -f base-"${suite}"-"${arch}" \
        || ./bin/make-base-vm --lxc --arch "${arch}" --suite "${suite}"
     popd
   done
 done
 
+echo "moving to build steps" 
 
 
 # Build
@@ -387,7 +393,7 @@ then
 	        --release "${VERSION}"-linux --destination ../repos/"${COIN}"-gitian.sigs/ \
 		../repos/"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	    fi
-	    cp build/out/"${COIN}"-*.tar.gz build/out/src/"${COIN}"-*.tar.gz \
+	    cp build/out/"${COIN}"*.tar.gz build/out/src/"${COIN}"*.tar.gz \
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
             sed -i '/linux/d' .build_list
 	    cp -av result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
@@ -409,8 +415,8 @@ then
 	         --release "${VERSION}"-win-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
 		 ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	    fi
-	    cp build/out/"${COIN}"-*-win-unsigned.tar.gz inputs/"${COIN}"-win-unsigned.tar.gz
-	    cp build/out/"${COIN}"-*.zip build/out/"${COIN}"-*.exe \
+	    cp build/out/"${COIN}"*-win-unsigned.tar.gz inputs/"${COIN}"*-win-unsigned.tar.gz
+	    cp build/out/"${COIN}"*.zip build/out/"${COIN}"*.exe \
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
             sed -i '/windows/d' .build_list
 	    cp -av result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
@@ -432,8 +438,8 @@ then
 	      --release "${VERSION}"-osx-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
 	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
 	    fi
-	    cp build/out/"${COIN}"-*-osx-unsigned.tar.gz inputs/"${COIN}"-osx-unsigned.tar.gz
-	    cp build/out/"${COIN}"-*.tar.gz build/out/"${COIN}"-*.dmg \
+	    cp build/out/"${COIN}"*-osx-unsigned.tar.gz inputs/"${COIN}"-osx-unsigned.tar.gz
+	    cp build/out/"${COIN}"*.tar.gz build/out/"${COIN}"*.dmg \
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/osx/
             sed -i '/osx/d' .build_list
 	    cp -av result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/osx/

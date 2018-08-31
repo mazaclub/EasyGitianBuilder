@@ -43,26 +43,26 @@ echo "export VGITIAN_SETUPENV=false" >> user_config.env
    echo "export VGITIAN_VERSION=$(echo "${VGITIAN_VERSION}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 
    echo "Version is a git commit hash? [t/f]"
-   read -r VGITIAN_COMMIT
+   read -r -n1 VGITIAN_COMMIT
    echo
    echo "export VGITIAN_COMMIT=$(echo "${VGITIAN_COMMIT}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env  
 #fi
-echo "Code git URL"
+echo "Code git URL i.e. https://github.com/mazanetwork/maza"
 read -r VGITIAN_URL
 echo
 echo "export VGITIAN_URL=$(echo "${VGITIAN_URL}" | tr '[:upper:]' '[:lower:]')">> user_config.env
 echo "export VGITIAN_COIN=$(echo "${VGITIAN_URL}" | tr '[:upper:]' '[:lower:]'|awk -F/ '{print $NF}')" >> user_config.env
 
-echo "Verify build t/f"
+echo "Download other builders' hashes and Verify build? t/f "
 read -r -n1 VGITIAN_VERIFY
 echo
 echo "export VGITIAN_VERIFY=$(echo "${VGITIAN_VERIFY}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')">> user_config.env
 
-echo "Gitian Signature git Repo URL?"
+echo "Gitian Signature git Repo URL? i.e. https://github.com/mazacoin/gitian.sigs""
 read -r VGITIAN_SIGREPO
 echo
 echo "export VGITIAN_SIGREPO=$(echo "${VGITIAN_SIGREPO}" | tr '[:upper:]' '[:lower:]')" >> user_config.env
-echo "Detached Signature git Repo URL?"
+echo "Detached Signature git Repo URL? i.e. https://github.com/mazacoin/maza-detached-sigs"
 read -r VGITIAN_DETACHEDSIGREPO
 echo
 echo "export VGITIAN_DETACHEDSIGREPO=$(echo "${VGITIAN_DETACHEDSIGREPO}" | tr '[:upper:]' '[:lower:]')" >> user_config.env
@@ -73,11 +73,11 @@ echo
 echo "export VGITIAN_ASSERT=$(echo "${VGITIAN_ASSERT}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')" >> user_config.env
 
 #if [[ $VGITIAN_ASSERT = true ]]; then
-   echo "Sign Binaries? t/f"
+   echo "GPG Sign Built Binaries? t/f"
    read -r -n1 VGITIAN_SIGN
    echo
    echo "export VGITIAN_SIGN=$(echo "${VGITIAN_SIGN}" | tr '[:upper:]' '[:lower:]'|sed 's/t/true/g;s/f/false/g')" >> user_config.env
-   echo "Build Signer (required)"
+   echo "Build Signer - GPG Key email (required)"
    read -r VGITIAN_SIGNER
    echo
    echo "export VGITIAN_SIGNER=$(echo "${VGITIAN_SIGNER}" | tr '[:upper:]' '[:lower:]')">> user_config.env
@@ -98,7 +98,7 @@ else
   echo "export VGITIAN_PROC=$(nproc)" >> user_config.env
 fi
 
-echo "export VGITIAN_MEM=4500" >> user_config.env
+echo "export VGITIAN_MEM=7168" >> user_config.env
 
 
 mv user_config.env USER_CONFIG.env
