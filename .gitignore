@@ -4,7 +4,8 @@ GPG_Suite-*dmg*
 SHA256SUMS
 USER_CONFIG.env
 VirtualBox-5*
-Xcode_7.3.1.dmg
+virtualBox-5*
+Xcode_*.dmg
 binaries/*
 cache/*
 inputs/*
@@ -21,3 +22,6 @@ vagrant_2.0.0*
 .vbox-vm-initialized
 .vbox-vm-snapshot-clean
 .skip_osx_builds
+.Vbox_installed
+.vagrant_installed
+
