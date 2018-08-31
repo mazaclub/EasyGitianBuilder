@@ -4,7 +4,7 @@ GPG_Suite-*dmg*
 SHA256SUMS
 USER_CONFIG.env
 VirtualBox-5*
-virtualBox-5*
+virtualbox-5*
 Xcode_*.dmg
 binaries/*
 cache/*
