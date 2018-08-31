@@ -37,7 +37,7 @@ check_diskspace () {
 
  case "$1" in
    install) printf "\nChecking disk space for initial VM launch...\n\n"
-            vboxspace=$(df -k "$HOME/Virtualbox VMs" |grep dev|awk '{print $4}')
+            vboxspace=$(df -k "$HOME/VirtualBox VMs" |grep dev|awk '{print $4}')
             egbspace=$(df -k ./|grep dev|awk '{print $4}')
             if [ "$vboxspace" -le 50000000 ]; then
                die 2 #insufficient diskspace
@@ -47,7 +47,7 @@ check_diskspace () {
             fi
           ;;
      build) printf "\nChecking disk space for your build...\n\n"
-            vboxspace=$(df -k "$HOME/Virtualbox VMs" |grep dev|awk '{print $4}')
+            vboxspace=$(df -k "$HOME/VirtualBox VMs" |grep dev|awk '{print $4}')
             egbspace=$(df -k ./|grep dev|awk '{print $4}')
             if [ "$vboxspace" -le 20000000 ]; then
                die 2 #insufficient diskspace
