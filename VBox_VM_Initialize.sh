@@ -1,5 +1,10 @@
 #!/bin/bash 
 # Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
+test -f EasyGitian.env && source EasyGitian.env
+if [ "$EASYGITIAN_DEBUG}" = "true" ] ; then
+   DEBUG=true
+   set -xeo pipefail
+fi
 
 if [ -f .vbox-vm-initialized ] ; then
   echo "Your VM had been initialized previously"
@@ -30,7 +35,6 @@ vagrant up \
  && touch .vbox-vm-snapshot-clean \
  && echo "Now we'll reboot the VM and you'll be ready to build" \
  && vagrant up \
- && ./EasyGitian run_build \
  && exit 0
 
 echo "Trouble initializing VM - please report errors in an issue"

@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/bin/bash 
 # Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
 ## This script runs inside the virtualbox vm 
-. /host_vagrantdir/USER_CONFIG.env
+test -f /host_vagrantdir/EasyGitian.env && source /host_vagrantdir/EasyGitian.env
+if [ "$EASYGITIAN_DEBUG}" = "true" ] ; then
+   DEBUG=true
+   set -xeo pipefail
+fi
+test -f /host_vagrantdir/USER_CONFIG.env && source /host_vagrantdir/USER_CONFIG.env
 
 ## install shyaml to easily parse gitian-descriptors
 
@@ -22,13 +27,13 @@ popd
 # proper base-vm below
 
 REPO=${VGITIAN_URL:-https://github.com/bitcoin-abc/bitcoin-abc}
-REPODIR=$(echo "${REPO}" | awk '{print $NF}')
+REPODIR=$(echo "${REPO}" | awk -F/ '{print $NF}')
 SIGREPO=${VGITIAN_SIGREPO:-https://github.com/bitcoin-core/gitian.sigs}
+# TODO these are really slow in Virtualbox
+# we already have these repos, we should use then
 git clone "${REPO}"
 git clone "${SIGREPO}"
 # make sure these appear in ~/ and ~/gitian-builder
-#ln -s ~/bitcoin-abc ~/gitian-builder/
-#ln -s ~/gitian.sigs ~/gitian-builder/
 
 SUITES="$(shyaml get-value suites <  "${REPODIR}"/contrib/gitian-descriptors/gitian-linux.yml|awk '{print $2}')"
 ARCHES="$(shyaml get-value architectures <  "${REPODIR}"/contrib/gitian-descriptors/gitian-linux.yml|awk '{print $2}')"

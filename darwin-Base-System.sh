@@ -1,6 +1,11 @@
 #!/bin/bash
 # Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
+test -f EasyGitian.env && source EasyGitian.env
+if [ "$EASYGITIAN_DEBUG}" = "true" ] ; then
+   DEBUG=true
+   set -xeo pipefail
+fi
 ## This script runs on the host machine
 
 # First install Virtualbox and Vagrant
@@ -8,21 +13,25 @@
 # Vagrant 
 get_vagrant () {
 # Get files 
-curl -O https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_x86_64.dmg
-curl -O https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS
-curl -O https://releases.hashicorp.com/vagrant/2.0.0/vagrant_2.0.0_SHA256SUMS.sig
+vagrant_version=2.1.4
+curl -O https://releases.hashicorp.com/vagrant/$vagrant_version/vagrant_${vagrant_version}_x86_64.dmg  -o vagrant_${vagrant_version}_x86_64.dmg
+curl -O https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_SHA256SUMS -o vagrant_${vagrant_version}_SHA256SUMS
+curl -O https://releases.hashicorp.com/vagrant/${vagrant_version}/vagrant_${vagrant_version}_SHA256SUMS.sig -o vagrant_${vagrant_version}_SHA256SUMS.sig
 
 # Verify shasums signature via gpg
-gpg --recv-keys 51852D87348FFC4C || exit 9
-gpg --verify vagrant_2.0.0_SHA256SUMS.sig vagrant_2.0.0_SHA256SUMS || exit 8
+#gpg --recv-keys 51852D87348FFC4C || exit 9
+gpg --import hashicorp.asc \
+  || gpg --recv-keys --keyserver pool.sks-keyservers.net  51852D87348FFC4C \
+  || exit 9
+gpg --verify vagrant_${vagrant_version}_SHA256SUMS.sig vagrant_${vagrant_version}_SHA256SUMS || exit 8
 
 # Verify shasum for download
-grep dmg vagrant_2.0.0_SHA256SUMS | shasum -c || exit 7
+grep dmg vagrant_${vagrant_version}_SHA256SUMS | shasum -c || exit 7
 
 # Mount the dmg and open it
-hdiutil attach vagrant_2.0.0_x86_64.dmg -autoopen
+hdiutil attach vagrant_${vagrant_version}_x86_64.dmg -autoopen
 # User must install the app
-echo "Now drag the Vagrant icon to the Applications folder" 
+echo "Now double click the Vagrant pkg file" 
 read -n 1 -s -r -p "Press any key to continue";echo
 which vagrant || not_installed vagrant
 touch .vagrant_installed
@@ -32,14 +41,17 @@ touch .vagrant_installed
 # Virtualbox
 get_vbox () {
 # Get files 
-curl -O http://download.virtualbox.org/virtualbox/5.1.28/VirtualBox-5.1.28-117968-OSX.dmg
-curl -O http://download.virtualbox.org/virtualbox/5.1.28/Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
-curl -O https://www.virtualbox.org/download/hashes/5.1.28/SHA256SUMS
+vbox_version=5.2.18-124319
+vbox_shortver=5.2.18
+curl -O http://download.virtualbox.org/virtualbox/${vbox_shortver}/VirtualBox-${vbox_version}-OSX.dmg
+curl -O http://download.virtualbox.org/virtualbox/${vbox_shortver}/Oracle_VM_VirtualBox_Extension_Pack-${vbox_version}.vbox-extpack
+curl -O https://www.virtualbox.org/download/hashes/${vbox_shortver}/SHA256SUMS 
+mv SHA256SUMS vbox_${vbox_shortver}.SHA256SUMS
 # Verify shasum for download
-grep dmg SHA256SUMS | shasum -c || exit 6
-grep "117968.vbox-extpack" SHA256SUMS | shasum -c || exit 5
+grep dmg vbox_${vbox_shortver}.SHA256SUMS | shasum -c || exit 6
+grep "${vbox_version}.vbox-extpack" vbox_${vbox_shortver}.SHA256SUMS | shasum -c || exit 5
 # Mount the dmg and open it
-hdiutil attach VirtualBox-5.1.28-117968-OSX.dmg -autoopen
+hdiutil attach VirtualBox-${vbox_version}-OSX.dmg -autoopen
 # User must install the app
 echo "Now drag the VirtualBox icon to the Applications folder" 
 read -n 1 -s -r -p "Press any key to continue";echo
@@ -48,8 +60,12 @@ echo "Installing VirtualBox Extension Pack (required)"
 sleep 5
 extpack_installed=$(VBoxManage list extpacks |grep "Usable" | awk '{print $2}')
 if [ "$extpack_installed" != "true" ] ; then
-   VBoxManage extpack install --replace Oracle_VM_VirtualBox_Extension_Pack-5.1.28-117968.vbox-extpack
+   VBoxManage extpack install --replace Oracle_VM_VirtualBox_Extension_Pack-${vbox_version}.vbox-extpack
 fi
+# TODO - if mojave user doesn't allow the kernel module to load
+# Vbox will fail later, requiring a reboot
+# determine if we can reload the vbox driver if the user didn't click allow 
+# Remind user to unlock before clicking allow 
 touch .Vbox_installed
 }
 
@@ -72,7 +88,12 @@ fi
 }
 
 attempts=1
+if [ -z "$1" ]; then
 which vagrant || get_vagrant
 which VBoxManage || get_vbox
 which vagrant && which VBoxManage && touch .prereq_install_complete
 echo "Prerequisites should now be installed" 
+else 
+get_vagrant
+get_vbox
+fi

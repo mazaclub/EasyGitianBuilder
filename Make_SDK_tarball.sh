@@ -7,6 +7,11 @@
 ##  - this script currently only supports OSX
 ##  - linux can open the dmg, and make the tarball 
 
+test -f EasyGitian.env && source EasyGitian.env
+if [ "$EASYGITIAN_DEBUG}" = "true" ] ; then
+   DEBUG=true
+   set -xeo pipefail
+fi
 
 
 test -f USER_CONFIG.env || { echo "Please configure the Build environment variables. Run: ./EasyGitian make_env"; exit 1; }
