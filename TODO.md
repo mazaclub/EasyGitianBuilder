@@ -12,12 +12,13 @@
    - gpg and git credentials need to be available inside the VBox VM 
 
 ## more basic sanity checking is required throughout
-   - check available host ram 
-   - check for VT-x / AMD-v capabilities (linux hosts)
-   - get correct user directory for VirtualBox_VMs dir
-     (currently presumes a default installation) 
-   - Vbox warns about using more than the number of *physhical* processors 
-     give use option of reducing number of procs used in VM
+   -  AMD-v capabilities (linux hosts)
+## user configurability
+   - ram/cpu allocation
+   - easygitianbuilder dir location
+   - VirtualBox location
+   - vagrant/vbox binaries location
+
 
 ## add option to clear cache & inputs directories
    - clean built deps per coin
@@ -34,10 +35,6 @@
    - Vagrant should work with gentoo and Arch as well
    - Devuan support
    - make sdk tarball
-
-## Windows batch/powershell programming
-  - make Vagrant/Virtualbox/SDK installation automated on Windows 
-  - convert shellscripts to  powershell/bat files
 
 ## Fix windows errors
   - Manual edit of USER_CONFIG.env produces Dos files, convert to unix 
@@ -72,3 +69,13 @@
 
 
 
+Install_EasyGitian.sh:49:     #  test gpg properly
+Install_EasyGitian.sh:188:   #  should be EASYGITIAN_DIR
+Make_SDK_tarball.sh:6:## 
+USER_CONFIG.sh:17: #  make function to ask for and regurgitate each variable needed
+USER_CONFIG.sh:19: #  check t/f answers are correct 
+USER_CONFIG.sh:20: #  check URLs are valid git repos
+darwin-Base-System.sh:65:#  - if mojave user doesn't allow the kernel module to load
+linux-Base-System.sh:9:# 
+linux-Base-System.sh:69:##  this is probably not good
+prep_gitian.sh:32:#  these are really slow in Virtualbox

@@ -14,6 +14,17 @@ to operate the Virtual Machine directly, rather than having most operations scri
 
 ## Quick Start
 
+  ```
+  wget https//raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
+  chmod +x Install_EasyGitian.sh
+  ./Install_EasyGitian.sh
+  source ~/EasyGitian.env
+  ./EasyGitian
+  ```
+
+
+## Using EasyGitian
+
 EasyGitian will attempt to install what is needed to build a VM and install gitian 
 The build environment is configured, and you'll be asked
   - which steps to run (build, sign, verify) 
@@ -62,8 +73,10 @@ an installer is provided:
 (Open a Terminal)
 
   ```
-  curl -O https://github.com/mazaclub/EasyGitian/Install-EasyGitian.sh
-  ./Install-EasyGitian.sh
+  curl -O https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
+  cat Install_EasyGitian.sh
+  chmod +x Install_EasyGitian.sh
+  ./Install_EasyGitian.sh
   ```
 You'll be given a choice to install GPG from GPGTools.org or via Homebrew, and
 install either Xcode or the required Developer Command Line tools. This repo 
@@ -72,7 +85,7 @@ will be cloned, and EasyGitian will be started for you.
 If your system already has this, you can simply clone the repo, and get started:
 
   ```
-  git clone https://github.com/mazaclub/EasyGitianBuilder
+  git clone https://github.com/mazaclub/EasyGitianBuilder easygitianbuilder
   cd ./easygitianbuilder
   ./EasyGitian
   ```
@@ -128,35 +141,24 @@ Additional help is available in easygitianbuilder/USAGE.md or
 
 ### Windows
 
-You will need to install the following applications:
+Operation in Windows10 works with Ubuntu in Windows Subsystem for Linux
+An Installer for WSL and Ubuntu is provided at 
+https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_WSL_EasyGitian.ps1
+Download that script, right click and run it a few times and Ubuntu will appear. 
 
-  git
-  gpg
-  VirtualBox
-  Vagrant
-
-It's recommended to install gpg first. Vagrant provides GPG signatures 
-for their downloads, which you should verify. Virtualbox appears to only 
-provide SHA256 sums to verify. Verify both Vagrant and Virtualbox, then install
-
-
-Once these are installed, use your git application to clone this repo
-Locate the directory git cloned EasyGitianBuilder to, and make 4 additional directories:
-
-  - binaries
-  - results
-  - inputs
-  - cache
-
-Open a command line prompt (Win+R cmd.exe)
-
+If you have WSL and ubuntu already, EasyGitian should work for you. 
+Download this to your home directory
+  ```wget https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
+  chmod +x Install_EasyGitian.sh
   ```
-  cd C:\Users\{YOUR_ACCT_NAME}\easygitianbuilder
-  vagrant up
-  vagrant ssh -c 'run-gitian-build'
+
+Now, however you've done the above run
+  ```./Install_EasyGitian.sh
+  source EasyGitian.env
+  ./EasyGitian
   ```
-See below for more information
-   
+
+See README-Windows.md   
 
 ## Why Easy Gitian builder
 Gitian building is generally too difficult for most people to 
@@ -180,8 +182,6 @@ build machines
 
 
 ## Work in progress 
- - Windows is not fully automated. Use is possible via
-   Vagrant commands 
 
  - Uses debian provided Vagrant base box, all modifications done at runtime
  - Uses modified gitian-build.sh from Bitcoin
@@ -194,10 +194,10 @@ build machines
  installed, and download and help you to install them if needed. 
  
  Tested with:
- Vagrant 2.0 
- VirtualBox 5.1
+ Vagrant 2.1.4
+ VirtualBox 5.2.18
 
- You'll then be given the opportunity to download Xcode_7.3.1 from 
+ You'll then be given the opportunity to download Xcode from 
  the Apple Developers site, and produce the SDK tarball required to 
  build OSX version of coins.
 
@@ -226,51 +226,8 @@ build machines
  On other debian based systems (including ubuntu for now) 
  an attempt is made to download the .deb file for your host system and install via dpkg 
 
+ EasyGitian will attempt to install Vagrant 2.1.4 and Virtualbox 5.2.18 on Debian9
+ Vagrant 2.0 and VirtualBox 5.1.28 will be installed on other debian based systems
 
-## Windows, and manual usage
-   Windows users will need to install Vagrant and VirtualBox (and the extension pack) 
-   Once those are installed, clone this repository to a directory on your machine
-   
-    - ensure that git is not configured to change Line Endings to CRLF 
-    - ensure that editors don't add CRLF to any files you edit
 
-    - make directories in this directory for Vbox Shared Folders to save your builds
-       binaries
-       results
-       inputs
-       cache
-    - optionally acquire the OSX SDK tarball required for 
-      building OSX versions, and put in the inputs directory made above
-      
-  start the machine the first time and provision all gitian's requirements
-
-  ```
-  vagrant up
-  ```
-
-  Once provisioning for the machine is complete, halt and make a snapshot
-
-  ```
-  vagrant halt
-  vagrant snapshot save default Gitian-Clean
-  vagrant up
-  vagrant ssh
-  ```
-
-  Once you've logged in via `vagrant ssh` you can run: 
-
-  ```
-  ./run-gitian-build
-  ```
-       
-  to completely rebuild your VM and lose all snapshots
-
-  ```
-  vagrant destroy
-  vagrant up
-  ```
     
-    - Scripts intended to be used inside the vm are in all lowercase - other scripts are intended for use on the host
-      (darwin-base-system.sh and linux-base-system.sh are exceptions at this time)
- 
-    - This directory is mounted in the VM as /host_vagrantdir

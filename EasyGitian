@@ -2,25 +2,67 @@
 
 # Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan)
 
-
+test -f EasyGitian.env && source EasyGitian.env
+if [ "$EASYGITIAN_DEBUG}" = "true" ] ; then
+   DEBUG=true
+   set -xeo pipefail
+fi               
 
 HOSTOS=$(uname | tr '[:upper:]' '[:lower:]')
+if [ "${EASYGITIAN_WSL}" = true ] ;then 
+   export WSL=true
+fi
+
+#if [ "${EASYGITIAN_OS}" = "Darwin" ] ; then
+if [ "${HOSTOS}" = "darwin" ] ; then
+    echo "Checking for VT-x Virtualization Capabilities in your CPU..."
+    sysctl -a | grep machdep.cpu.features|grep -i vmx > /dev/null 2>&1 || { echo "VirtualBox requires VT-x Virtualization capabilities. Exiting..." ; exit 1; }
+    echo "Virtualization capabilities found"
+    num_procs=$(sysctl -n hw.physicalcpu)
+    echo "Checking number of Physical CPU cores... $num_procs"
+    HOST_MEM=$(sysctl -n hw.memsize); HOST_MEM=$((HOST_MEM/1048576))
+elif [ "${HOSTOS}" = "linux" ] ; then
+   HOST_MEM=$(grep MemTotal /proc/meminfo |awk '{print $2 / 1024 }'|awk -F\. '{print $1}')
+   echo "Checking for 64bit CPU..." 
+   grep lm /proc/cpuinfo > /dev/null 2>&1 || { echo "64 bit CPU required. Exiting..." ; exit 1; }
+   echo "64bit CPU found"
+   echo "Checking for VT-x Virtualization Capabilities in your CPU..."
+   grep vmx /proc/cpuinfo > /dev/null 2>&1 || { echo "VirtualBox requires VT-x Virtualization capabilities. Exiting..." ; exit 1; }
+   echo "Virtualization capabilities found"
+   num_procs=$(grep -c processor /proc/cpuinfo)
+   echo "Checking number of Physical CPU cores... $num_procs"
+else 
+   echo "Host OS: ${HOSTOS} not recognized. Exiting..."
+   exit 1
+fi
+## make sure we have enough ram
+need_mem=$((num_procs*1250))
+echo "Required RAM for the ${num_procs} processors you have is $need_mem MB"
+echo "Checking total RAM on host... ${HOST_MEM} MB"
+if [ $HOST_MEM -le $need_mem ] ; then
+   echo "You have ${HOST_MEM} MB of RAM, Absolute mininum is 1250 MB per Processor"
+   # TODO allow user to set this 
+   echo "Exiting..."
+   exit
+fi
 #EG_VERSION=0.1.0
 
 trap cleanup INT TERM
 
-# Some functions
 die () {
  
  case $1 in
   1) echo "EasyGitian already running"
      exit 1
      ;;
-  2) printf "\nInsufficient disk space in '$HOME/VirtualBox VMs' 50GB required, %s availablei\n" "$vboxspace"
+  2) printf "\\nInsufficient disk space in user directory ' 50GB required, %s available\\n" "$vboxspace"
      exit 2
      ;;
-  3) printf "\nInsufficient disk space in EasyGitian directory 20GB required, %s availablei\n" "$egbspace"
+  3) printf "\\nInsufficient disk space in EasyGitian directory 20GB required, %s available\\n" "$egbspace"
      exit 3 
+     ;;
+  5) printf "\\nInstallation of Vagrant and VirtualBox failed\\nPlease retry\\nYou may want to edit EasyGitian.env and add a line\\nexport EASYGITIAN_DEBUG=true\\n"
+     exit 5
      ;;
   *) echo "unknown error"
      exit 999
@@ -34,25 +76,28 @@ cleanup () {
 }
 
 check_diskspace () {
+            if [ "${EASYGITIAN_WSL}" = "true" ]; then
+               egbspace=$(df -k ./|grep -v Filesystem |awk '{print $4}')
+               vboxspace=$(df -k "${EASYGITIAN_WINUSERDIR}" |grep -v Filesystem |awk '{print $4}')
+            else
+               egbspace=$(df -k ./|grep dev|awk '{print $4}')
+               vboxspace=$(df -k "$HOME" |grep dev|awk '{print $4}')
+            fi
 
  case "$1" in
-   install) printf "\nChecking disk space for initial VM launch...\n\n"
-            vboxspace=$(df -k "$HOME/VirtualBox VMs" |grep dev|awk '{print $4}')
-            egbspace=$(df -k ./|grep dev|awk '{print $4}')
-            if [ "$vboxspace" -le 50000000 ]; then
+   install) printf "\\nChecking disk space for initial VM launch...\\n\\n"
+            if [[ $vboxspace -le 50000000 ]]; then
                die 2 #insufficient diskspace
             fi
-            if [ "$egbspace" -le 20000000 ]; then
+            if [ $egbspace -le 20000000 ]; then
                die 3
             fi
           ;;
-     build) printf "\nChecking disk space for your build...\n\n"
-            vboxspace=$(df -k "$HOME/VirtualBox VMs" |grep dev|awk '{print $4}')
-            egbspace=$(df -k ./|grep dev|awk '{print $4}')
-            if [ "$vboxspace" -le 20000000 ]; then
+     build) printf "\\nChecking disk space for your build...\\n\\n"
+            if [[ $vboxspace -le 20000000 ]]; then
                die 2 #insufficient diskspace
             fi
-            if [ "$egbspace" -le 20000000 ]; then
+            if [ $egbspace -le 20000000 ]; then
                die 3
             fi
           ;;
@@ -70,25 +115,43 @@ check_self () {
 }
 
 install_prereqs () {
-which vagrant > /dev/null 2>&1 \
-  && echo "Vagrant appears to be installed" \
-  && vagrant version \
-  && echo "" \
-  && which VBoxManage  > /dev/null 2>&1 \
-  && echo "Virtualbox appears to be installed" \
-  && echo "Virtualbox Version: $(VBoxManage -v)" \
-  && echo "" \
-  && if [ "$(VBoxManage list extpacks |grep "Usable" | awk '{print $2}')" = "true" ] ; then
-      echo "Virtualbox Extension Pack installed:"
-      VBoxManage list extpacks|grep -E '(Version|Revision)'
-      echo ""
-      touch ./.prereq_install_complete
-     fi
+if [ "${WSL}" = "true" ] ; then
+  VBOXMANAGE="/mnt/c/Program Files/Oracle/VirtualBox/VBoxManage.exe"
+  test -f /usr/bin/vagrant \
+    && test -f "/mnt/c/HashiCorp/Vagrant/bin/vagrant.exe" \
+    && vagrant version \
+    && which "${VBOXMANAGE}" \
+    && echo "Virtualbox appears to be installed" \
+    && echo "Virtualbox Version: $("${VBOXMANAGE}" -v)" \
+    && echo "" \
+    && if [ "$("${VBOXMANAGE}" list extpacks |grep "Usable" | awk '{print $2}')" = "true" ] ; then
+         echo "Virtualbox Extension Pack installed:"
+         "${VBOXMANAGE}" list extpacks|grep -E '(Version|Revision)'
+         echo ""
+         touch ./.prereq_install_complete
+       fi
+else
+  VBOXMANAGE=$(which VBoxManage)
+  which vagrant > /dev/null 2>&1 \
+    && echo "Vagrant appears to be installed" \
+    && vagrant version \
+    && echo "" \
+    && which VBoxManage  > /dev/null 2>&1 \
+    && echo "Virtualbox appears to be installed" \
+    && echo "Virtualbox Version: $(VBoxManage -v)" \
+    && echo "" \
+    && if [ "$(VBoxManage list extpacks |grep "Usable" | awk '{print $2}')" = "true" ] ; then
+         echo "Virtualbox Extension Pack installed:"
+         VBoxManage list extpacks|grep -E '(Version|Revision)'
+         echo ""
+         touch ./.prereq_install_complete
+       fi
+fi
 if [ -f ./.prereq_install_complete ] ; then 
   echo "Install already completed"
 else
   echo "Attempting to help you install Vagrant & Virtualbox"
-  ./"${HOSTOS}"-Base-System.sh
+  ./"${HOSTOS}"-Base-System.sh || die 5
 fi
 }
 
@@ -143,6 +206,7 @@ run_build () {
  test -f  .prereq_install_complete || install_prereqs
  echo "Vagrant and Virtualbox installed"
  test -f ./USER_CONFIG.env || make_env
+ grep VGITIAN_MEM ./USER_CONFIG.env || make_env 
  echo "Gitian settings configuration checked"
  get_repos
  SDKNAME=$(grep "sdk.tar.gz" repos/"${VGITIAN_COIN}"/contrib/gitian-descriptors/gitian-osx.yml|grep -v BASEPREFIX)
@@ -150,19 +214,35 @@ run_build () {
  test -f ./inputs/MacOSX"${SDKVER}".sdk.tar.gz || make_tarball
  echo "OSX SDK tarball checked"
  test -f .vbox-vm-initialized || first_run
- echo "Virtualbox VM initialized"
- check_diskspace build && printf "\nDisk Space OK\n\n"
- vagrant status | grep running || vagrant up && \
- printf "VM Started - running build\n" && \
- read -p "Watch Build in a new terminal?" -n 1 -r
- echo
- if [[ $REPLY =~ ^[Yy]$ ]]
-   then
-   ./EasyGitian watch_fromrun &
-   vagrant ssh -c './run-gitian-build'
- else
-   vagrant ssh -c './run-gitian-build'
- fi
+ echo "Virtualbox VM should be initialized"
+ check_diskspace build \
+   && printf "\\nDisk Space OK\\n\\n" \
+   && vagrant status | grep running || vagrant up \
+   && printf "VM Started - running build\\n" \
+   && if [ "${HOSTOS}" = "darwin" ] ; then 
+         # we can be pretty sure we have openssl on osx
+         EASYGITIAN_BUILD_ID=$(echo "$(openssl rand -hex 4)"|tr '[:lower:]' '[:upper:]')
+      else
+         # osx throws an Illegal byte sequece error for this 
+         EASYGITIAN_BUILD_ID=$(tr -dc 'A-F0-9' < /dev/urandom |head -c8) 
+      fi \
+   && sed -i.bkp '/EASYGITIAN_BUILD_ID/d' USER_CONFIG.env \
+   && echo "export EASYGITIAN_BUILD_ID=$(echo ${EASYGITIAN_BUILD_ID})" >> USER_CONFIG.env \
+   && echo "Build ID for this build:  ${EASYGITIAN_BUILD_ID}" \
+   && echo "########################################################" >> Build_History.EGB \
+   && echo "########################################################" >> Build_History.EGB \
+   && echo  "Start Build: ${EASYGITIAN_BUILD_ID} at $(date) " >> Build_History.EGB \
+   && cat USER_CONFIG.env EasyGitian.env >> Build_History.EGB \
+   && printf  "\\n########## End Environment Build: %s ##########\\n\\n" ${EASYGITIAN_BUILD_ID} >> Build_History.EGB \
+   && printf "\\n\\nIf you'd like to watch additional build output\\nOpen a new terminal and run\\n\\n source ~/EasyGitian.env; vagrant ssh\\n\\nthen run \\n\\ntail -f gitian-builder/var/install.log\\n\\ntail -f gitian-builder/var/build.log\\n\\n" \
+   && chmod +x ./gitian-build.sh \
+   && vagrant ssh -c './run-gitian-build'
+ # TODO opening a new terminal was hacky at best
+ #read -p "Watch Build in a new terminal?" -n 1 -r
+ #echo
+ #if [[ $REPLY =~ ^[Yy]$ ]]
+ #  then
+ #  ./EasyGitian watch_fromrun &
 }
 
 clean_vm () {
@@ -198,9 +278,10 @@ clean_vm () {
 
 destroy_vm () {
  vagrant destroy && \
-   rm .vbox-vm-initialized && \
-   rm .vbox-vm-snapshot-clean &&
-   rm .prereq_install_complete
+   test -f .vbox-vm-initialized && rm .vbox-vm-initialized \
+     && test -f .vbox-vm-snapshot-clean && rm .vbox-vm-snapshot-clean \
+     && test -f .prereq_install_complete && rm .prereq_install_completea \
+     && test -f .vagrant && rm -rf .vagrant 
 }
 rebuild_vm () {
  destroy_vm 
@@ -230,7 +311,7 @@ watch_fromrun () {
      while [ ! -f ./build_list ]; do
        sleep 10
        if [ "$SECONDS" -ge "$(( started + 180))" ];then
-        printf "\nBuild is taking too long to start\n Can't open new window"
+        printf "\\nBuild is taking too long to start\\n Can't open new window"
 	exit 88
        fi
      done

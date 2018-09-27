@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-   config.vm.network "forwarded_port", guest: 22, host: 22229
+   config.vm.network "forwarded_port", guest: 22, host: 22222
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -74,16 +74,21 @@ Vagrant.configure("2") do |config|
 ## Give VM 1/4 system memory & access to all cpu cores on the host
      if host =~ /darwin/
           cpus = `sysctl -n hw.ncpu`.to_i
+          guestmem = `sysctl -n hw.memsize`.to_i / 1024 / 1024
 ##          # sysctl returns Bytes and we need to convert to MB
 ##     #     mem = `sysctl -n hw.memsize`.to_i / 1024 / 1024 / 4
      elsif host =~ /linux/
           cpus = `nproc`.to_i
+	  guestmem = `sed -n -e '/^MemTotal/s/^[^0-9]*//p' /proc/meminfo`.to_i / 1024
 ##      #    mem = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 4
      else
           cpus = `wmic cpu get NumberOfCores`.split("\n")[2].to_i
+	  guestmem = `wmic OS get TotalVisibleMemorySize`.split("\n")[2].to_i / 1024
 ##       #   mem = `wmic OS get TotalVisibleMemorySize`.split("\n")[2].to_i / 1024 /4
    end
-   vb.customize ["modifyvm", :id, "--cpus", cpus]
+   cpus = cpus - 1
+   guestmem = guestmem - 2048
+   vb.customize ["modifyvm", :id, "--cpus", cpus , "--memory", guestmem]
    end
   #
   # View the documentation for the provider you are using for more

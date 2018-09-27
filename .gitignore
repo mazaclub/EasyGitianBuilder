@@ -1,7 +1,9 @@
 Oracle_VM_VirtualBox_Extension_Pack*
+Build_History.EGB
+EasyGitian.env
 easygitianbuilder/
 GPG_Suite-*dmg*
-SHA256SUMS
+*SHA256SUMS
 USER_CONFIG.env
 VirtualBox-5*
 virtualbox-5*

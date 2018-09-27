@@ -3,12 +3,16 @@
 
 ## This script runs inside the virtualbox vm
 
-#set -x
 # Portions Copyright (c) 2017 MAZA Network Developers, Robert Nelson (guruvan) 
 # Copyright (c) 2016 The Bitcoin Core developers
 
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
+test -f /host_vagrantdir/EasyGitian.env && source /host_vagrantdir/EasyGitian.env
+if [ "$EASYGITIAN_DEBUG}" = "true" ] ; then
+   DEBUG=true
+   set -xeo pipefail
+fi
 
 cleanup () {
   test -f /home/vagrant/gitian-builder/.build_list \
@@ -32,6 +36,12 @@ env
 
 # set date for build output directories
 DATE="$(date +%Y%m%d%H%M)"
+# set a build ID
+if [ -z ${EASYGITIAN_BUILD_ID} ]; then 
+   BUILD_ID=$(echo "obase=16; $RANDOM * $RANDOM" | bc)
+else
+   BUILD_ID="${EASYGITIAN_BUILD_ID}"
+fi
 
 
 # Check for sufficient diskspace to complete build
@@ -90,19 +100,19 @@ osslPatchUrl=https://bitcoincore.org/cfields/osslsigncode-Backports-to-1.7.1.pat
 scriptName=$(basename -- "$0")
 signProg="gpg --detach-sign"
 commitFiles=${VGITIAN_COMMITFILES:-false}
-
-printf "\nSign: %s" "$sign"
-printf "\nVerify: %s" "$verify"
-printf "\nBuild: %s" "$build"
-printf "\nBuild Linux: %s" "$linux"
-printf "\nBuild Windows: %s" "$windows"
-printf "\nBuild OSX: %s" "$osx"
-printf "\nSigner: %s" "$SIGNER"
-printf "\nVersion: %s" "$VERSION"
-printf "\nCommit: %s" "$commit"
-printf "\nURL: %s" "$url"
-printf "\nProcessors: %s" "$proc"
-printf "\nMemory: %s" "$mem"
+echo "########## Starting gitian-builder Build ID: ${BUILD_ID} ########## " >> /host_vagrantdir/Build_History.EGB
+printf "\\nSign: %s" "$sign" | tee -a /host_vagrantdir/Build_History.EGB
+printf "\\nVerify: %s" "$verify" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nBuild: %s" "$build" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nBuild Linux: %s" "$linux" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nBuild Windows: %s" "$windows" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nBuild OSX: %s" "$osx" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nSigner: %s" "$SIGNER" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nVersion: %s" "$VERSION" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nCommit: %s" "$commit" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nURL: %s" "$url" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nProcessors: %s" "$proc" | tee -a /host_vagrantdir/Build_History.EGB  
+printf "\\nMemory: %s\\n\\n" "$mem" | tee -a /host_vagrantdir/Build_History.EGB  
 
 # Help Message
 read -r -d '' usage <<- EOF
@@ -366,23 +376,50 @@ then
 	# Clean build dir
 	rm -rf ./gitian-builder/build/*
 	# Make output folder
-	mkdir -p ./bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/{linux,windows,osx}
-	mkdir -p ./gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/{linux,windows,osx}
+	mkdir -p ./bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/{linux,windows,osx}
+	mkdir -p ./gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/{linux,windows,osx}
+	#mkdir -p ./bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/{linux,windows,osx}
+	#mkdir -p ./gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/{linux,windows,osx}
 	# Build Dependencies
 	echo ""
 	echo "Building Dependencies"
 	echo ""
 	pushd ./gitian-builder	
-	mkdir -p inputs
+	test -d inputs || mkdir -p inputs
 	wget -N -P inputs $osslPatchUrl
 	wget -N -P inputs $osslTarUrl
 	make -C ../repos/"${COIN}"/depends download SOURCES_PATH="$(pwd)"/cache/common
 
+	# Mac OSX
+	if [[ $osx = true ]]
+	then
+	    echo ""
+	    echo "Compiling ${COIN} ${VERSION} for macOS on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
+	    echo ""
+	    ./bin/gbuild -j "${proc}" -m "${mem}" \
+	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
+	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
+	    if [[ $assert = true ]]
+	    then
+	    ./bin/gsign -p $signProg --signer "$SIGNER" \
+	      --release "${VERSION}"-osx-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
+	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
+	    fi
+	    cp build/out/"${COIN}"*-osx-unsigned.tar.gz inputs
+	    cp build/out/"${COIN}"*.tar.gz build/out/"${COIN}"*.dmg \
+	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
+	      #../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/osx/
+            sed -i '/osx/d' .build_list
+	    cp -a result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
+	    #cp -av result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
+	    # take a break here to give user time to view errors
+	    echo "########## DONE  Compiling ${COIN} ${VERSION} for macOS on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
+	fi
 	# Linux
 	if [[ $linux = true ]]
 	then
             echo ""
-	    echo "Compiling ${COIN} ${VERSION} for Linux"
+	    echo "Compiling ${COIN} ${VERSION} for Linux on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	    echo ""
 	    ./bin/gbuild -j "${proc}" -m "${mem}" \
 	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
@@ -394,17 +431,19 @@ then
 		../repos/"${COIN}"/contrib/gitian-descriptors/gitian-linux.yml
 	    fi
 	    cp build/out/"${COIN}"*.tar.gz build/out/src/"${COIN}"*.tar.gz \
-	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
+	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
+	      #../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
             sed -i '/linux/d' .build_list
-	    cp -av result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
+	    cp -a result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
+	    #cp -av result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
 	    # take a break here to give user time to view errors
-            sleep 30
+	    echo "########## DONE  Compiling ${COIN} ${VERSION} for Linux on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	fi
 	# Windows
 	if [[ $windows = true ]]
 	then
 	    echo ""
-	    echo "Compiling ${COIN} ${VERSION} for Windows"
+	    echo "Compiling ${COIN} ${VERSION} for Windows on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	    echo ""
 	    ./bin/gbuild -j "${proc}" -m "${mem}" \
 	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
@@ -415,39 +454,20 @@ then
 	         --release "${VERSION}"-win-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
 		 ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win.yml
 	    fi
-	    cp build/out/"${COIN}"*-win-unsigned.tar.gz inputs/"${COIN}"*-win-unsigned.tar.gz
+            
+	    cp build/out/"${COIN}"*-win-unsigned.tar.gz inputs/
 	    cp build/out/"${COIN}"*.zip build/out/"${COIN}"*.exe \
-	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
+	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
+	      #../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
             sed -i '/windows/d' .build_list
-	    cp -av result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
+	    cp -a result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
+	    #cp -av result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
 	    # take a break here to give user time to view errors
-            sleep 30
+	    echo "########## DONE  Compiling ${COIN} ${VERSION} for Windows on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	fi
-	# Mac OSX
-	if [[ $osx = true ]]
-	then
-	    echo ""
-	    echo "Compiling ${COIN} ${VERSION} for Mac OSX"
-	    echo ""
-	    ./bin/gbuild -j "${proc}" -m "${mem}" \
-	      --commit "${COIN}"="${COMMIT}" --url "${COIN}"="${url}" \
-	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
-	    if [[ $assert = true ]]
-	    then
-	    ./bin/gsign -p $signProg --signer "$SIGNER" \
-	      --release "${VERSION}"-osx-unsigned --destination ../repos/"${COIN}"-gitian.sigs/ \
-	      ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx.yml
-	    fi
-	    cp build/out/"${COIN}"*-osx-unsigned.tar.gz inputs/"${COIN}"-osx-unsigned.tar.gz
-	    cp build/out/"${COIN}"*.tar.gz build/out/"${COIN}"*.dmg \
-	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/osx/
-            sed -i '/osx/d' .build_list
-	    cp -av result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/osx/
-	    # take a break here to give user time to view errors
-	    sleep 30
-	fi
-	popd
 
+        # popd after builds are complete
+	popd
         if [[ $commitFiles = true ]]
         then
 	    # Commit to gitian.sigs repo
@@ -521,8 +541,10 @@ then
 	    echo ""
 	    ./bin/gbuild -i --commit signature="${COMMIT}" ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
 	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-win-signed --destination ../repos/"${COIN}"-gitian.sigs/ ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-win-signer.yml
-	    mv build/out/"${COIN}"-*win64-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}"
-	    mv build/out/"${COIN}"-*win32-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}"
+	    mv build/out/"${COIN}"-*win64-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${BUILD_ID}"
+	    mv build/out/"${COIN}"-*win32-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${BUILD_ID}"
+	    #mv build/out/"${COIN}"-*win64-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}"
+	    #mv build/out/"${COIN}"-*win32-setup.exe ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}"
 	fi
 	# Sign Mac OSX
 	if [[ $osx = true ]]
@@ -532,7 +554,8 @@ then
 	    echo ""
 	    ./bin/gbuild -i --commit signature="${COMMIT}" ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
 	    ./bin/gsign -p $signProg --signer "$SIGNER" --release "${VERSION}"-osx-signed --destination ../repos/"${COIN}"-gitian.sigs/ ../repos/"${COIN}"/contrib/gitian-descriptors/gitian-osx-signer.yml
-	    mv build/out/"${COIN}"-osx-signed.dmg ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}/${COIN}-${VERSION}"-osx.dmg
+	    mv build/out/"${COIN}"-osx-signed.dmg ../bitcoin-binaries/"${COIN}/${VERSION}/${BUILD_ID}/${COIN}-${VERSION}"-osx.dmg
+	    #mv build/out/"${COIN}"-osx-signed.dmg ../bitcoin-binaries/"${COIN}/${VERSION}/${DATE}/${COIN}-${VERSION}"-osx.dmg
 	fi
 	popd
 
