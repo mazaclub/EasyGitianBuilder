@@ -53,7 +53,16 @@ grep "${vbox_version}.vbox-extpack" vbox_${vbox_shortver}.SHA256SUMS | shasum -c
 # Mount the dmg and open it
 hdiutil attach VirtualBox-${vbox_version}-OSX.dmg -autoopen
 # User must install the app
-echo "Now drag the VirtualBox icon to the Applications folder" 
+echo "Now double-click the VirtualBox.pkg icon to install VirtualBox" 
+echo "If the VirtualBox installation fails at this point, you can"
+echo "reboot to finish the installation."
+echo " "
+echo "macOS security prevents VirtualBox from loading drivers without"
+echo "your permission. An "Allow" button will appear in your Security Preferences"
+echo "pane. Click the Lock Icon to unlock, and then click Allow" 
+echo "Once you do this run EasyGitian again with:"
+echo " "
+echo "source ~/EasyGitian.env ; ./EasyGitian "
 read -n 1 -s -r -p "Press any key to continue";echo
 which VBoxManage || not_installed VBoxManage
 echo "Installing VirtualBox Extension Pack (required)"
