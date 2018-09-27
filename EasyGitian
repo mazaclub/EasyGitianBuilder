@@ -235,6 +235,7 @@ run_build () {
    && cat USER_CONFIG.env EasyGitian.env >> Build_History.EGB \
    && printf  "\\n########## End Environment Build: %s ##########\\n\\n" ${EASYGITIAN_BUILD_ID} >> Build_History.EGB \
    && printf "\\n\\nIf you'd like to watch additional build output\\nOpen a new terminal and run\\n\\n source ~/EasyGitian.env; vagrant ssh\\n\\nthen run \\n\\ntail -f gitian-builder/var/install.log\\n\\ntail -f gitian-builder/var/build.log\\n\\n" \
+   && chmod +x ./gitian-build.sh \
    && vagrant ssh -c './run-gitian-build'
  # TODO opening a new terminal was hacky at best
  #read -p "Watch Build in a new terminal?" -n 1 -r

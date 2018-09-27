@@ -189,13 +189,13 @@ to download Xcode once EasyGitian is installed\\n\\n"
    cd ~
    git_clone \
     && printf "\\nYou're ready to start EasyGitian\\nAt your terminal type:\\n\
-cd %s/easygitianbuilder\\n./EasyGitian\\n\\nEasyGitian will make sure you \
-have Vagrant and Virtualbox installed\\nand start your build\\n\\n" "$(pwd)"
+cd ~/easygitianbuilder\\n./EasyGitian\\n\\nEasyGitian will make sure you \
+have Vagrant and Virtualbox installed\\nand start your build\\n\\n"  
    test -z "$DEBUG" ||  read -n 1 -s -r -p "Press any key to continue"
-   test -d ./easygitianbuilder \
-    && cp ~/EasyGitian.env ./easygitianbuilder \
+   test -d ~/easygitianbuilder \
+    && cp ~/EasyGitian.env ~/easygitianbuilder \
     && printf "\\nEasyGitian appears to exist\\nStarting it now\\n" \
-    && cd ./easygitianbuilder \
+    && cd ~/easygitianbuilder \
     && echo "EasyGitian is installed." \
     && echo "To start a build run:" \
     && echo "source ~/EasyGitian.env ; ./EasyGitian" 
