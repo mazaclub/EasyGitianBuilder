@@ -410,8 +410,8 @@ then
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
 	      #../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/osx/
             sed -i '/osx/d' .build_list
-	    cp -av result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
-	    #cp -av result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/osx/
+	    cp -a result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
+	    #cp -av result/"${COIN}"-osx*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/osx/
 	    # take a break here to give user time to view errors
 	    echo "########## DONE  Compiling ${COIN} ${VERSION} for macOS on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	fi
@@ -434,8 +434,8 @@ then
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
 	      #../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
             sed -i '/linux/d' .build_list
-	    cp -av result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
-	    #cp -av result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/linux/
+	    cp -a result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
+	    #cp -av result/"${COIN}"-linux*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/linux/
 	    # take a break here to give user time to view errors
 	    echo "########## DONE  Compiling ${COIN} ${VERSION} for Linux on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	fi
@@ -460,8 +460,8 @@ then
 	      ../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
 	      #../bitcoin-binaries/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
             sed -i '/windows/d' .build_list
-	    cp -av result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
-	    #cp -av result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${DATE}"/windows/
+	    cp -a result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
+	    #cp -av result/"${COIN}"-win*.yml ../gitian-results/"${COIN}"/"${VERSION}"/"${BUILD_ID}"/windows/
 	    # take a break here to give user time to view errors
 	    echo "########## DONE  Compiling ${COIN} ${VERSION} for Windows on Build ID: ${BUILD_ID} at $(date)" | tee -a /host_vagrantdir/Build_History.EGB
 	fi

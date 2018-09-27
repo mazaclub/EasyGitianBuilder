@@ -20,7 +20,11 @@ sudo pip install shyaml
 mkdir ~/tmp-git
 pushd ~/tmp-git || exit 4
 git clone https://github.com/devrandom/gitian-builder
-cp -av gitian-builder ~
+if [ "$DEBUG" = "true" ] ; then 
+   cp -av gitian-builder ~
+else
+   cp -a gitian-builder ~
+fi
 popd
 # Just use examples for now
 # We need the user's chosen repo in order to make the 

@@ -26,7 +26,8 @@ sudo mkswap /mnt/easygitian_swap
 # no ssh causes error rebooting the vm via vagrant
 sudo rm --one-file-system -rf  /home/vagrant
 mkdir /home/vagrant 
-cp -av /mnt/.ssh /home/vagrant/
+cp -a /mnt/.ssh /home/vagrant/
+#cp -av /mnt/.ssh /home/vagrant/
 sudo chown -R vagrant.vagrant /mnt
 
 

@@ -195,6 +195,7 @@ cd ~/easygitianbuilder\\n./EasyGitian\\n\\nEasyGitian will make sure you \
 have Vagrant and Virtualbox installed\\nand start your build\\n\\n"  
    test -z "$DEBUG" ||  read -n 1 -s -r -p "Press any key to continue"
    test -d ~/easygitianbuilder \
+    && echo "cd ~/easygitianbuilder" >> ~/EasyGitian.env \
     && cp ~/EasyGitian.env ~/easygitianbuilder \
     && printf "\\nEasyGitian appears to exist\\nStarting it now\\n" \
     && cd ~/easygitianbuilder \
