@@ -14,6 +14,7 @@ to operate the Virtual Machine directly, rather than having most operations scri
 
 ## Quick Start
 
+#### macOS, Debian, Ubuntu
   ```
   wget https//raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
   chmod +x Install_EasyGitian.sh
@@ -21,6 +22,8 @@ to operate the Virtual Machine directly, rather than having most operations scri
   source ~/EasyGitian.env
   ./EasyGitian
   ```
+#### Windows with WSL & Ubuntu
+_See README-Windows.md_
 
 
 ## Using EasyGitian
