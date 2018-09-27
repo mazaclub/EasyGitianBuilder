@@ -137,9 +137,9 @@ get_tf () {
 }
 check_config () {
    cat USER_CONFIG.env
-   echo "Replace Build Configuration? [t/f]"
+   echo "Build Configuration is OK? [t/f]"
    get_tf
-   if [ "${tf}" = "true" ] ;then
+   if [ "${tf}" = "false" ] ;then
       new_config=true
       make_config
    else

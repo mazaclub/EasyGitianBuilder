@@ -14,6 +14,17 @@ to operate the Virtual Machine directly, rather than having most operations scri
 
 ## Quick Start
 
+  ```
+  wget https//raw.githubusercontent.com/mazaclub/easygitianbuilder/develop/Install_EasyGitian.sh
+  chmod +x Install_EasyGitian.sh
+  ./Install_EasyGitian.sh
+  source ~/EasyGitian.env
+  ./EasyGitian
+  ```
+
+
+## Using EasyGitian
+
 EasyGitian will attempt to install what is needed to build a VM and install gitian 
 The build environment is configured, and you'll be asked
   - which steps to run (build, sign, verify) 
