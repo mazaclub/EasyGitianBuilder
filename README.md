@@ -15,7 +15,7 @@ to operate the Virtual Machine directly, rather than having most operations scri
 ## Quick Start
 
   ```
-  wget https//raw.githubusercontent.com/mazaclub/easygitianbuilder/develop/Install_EasyGitian.sh
+  wget https//raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
   chmod +x Install_EasyGitian.sh
   ./Install_EasyGitian.sh
   source ~/EasyGitian.env
@@ -73,7 +73,7 @@ an installer is provided:
 (Open a Terminal)
 
   ```
-  curl -O https://raw.githubusercontent.com/mazaclub/easygitianbuilder/develop/Install_EasyGitian.sh
+  curl -O https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
   cat Install_EasyGitian.sh
   chmod +x Install_EasyGitian.sh
   ./Install_EasyGitian.sh
@@ -85,7 +85,7 @@ will be cloned, and EasyGitian will be started for you.
 If your system already has this, you can simply clone the repo, and get started:
 
   ```
-  git clone https://github.com/mazaclub/EasyGitianBuilder
+  git clone https://github.com/mazaclub/EasyGitianBuilder easygitianbuilder
   cd ./easygitianbuilder
   ./EasyGitian
   ```
@@ -143,12 +143,12 @@ Additional help is available in easygitianbuilder/USAGE.md or
 
 Operation in Windows10 works with Ubuntu in Windows Subsystem for Linux
 An Installer for WSL and Ubuntu is provided at 
-https://raw.githubusercontent.com/mazaclub/easygitianbuilder/develop/Install_WSL_EasyGitian.ps1
+https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_WSL_EasyGitian.ps1
 Download that script, right click and run it a few times and Ubuntu will appear. 
 
 If you have WSL and ubuntu already, EasyGitian should work for you. 
 Download this to your home directory
-  ```wget https://raw.githubusercontent.com/mazaclub/easygitianbuilder/develop/Install_EasyGitian.sh
+  ```wget https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh
   chmod +x Install_EasyGitian.sh
   ```
 

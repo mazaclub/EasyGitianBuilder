@@ -67,7 +67,7 @@ Begin {
     $MyExe = Join-Path $InstallPath $DistroEXE[$Distro]
     Write-Host "Checking for EXE $MyExe - Distro $DistroEXE[$Distro] in Path $InstallPath"
     if (Test-Path $MyExe) {
-       Start-Process $MyExe -ArgumentList 'run wget -N -O $HOME/Install_EasyGitian.sh https://raw.githubusercontent.com/mazaclub/easygitianbuilder/develop/Install_EasyGitian.sh'
+       Start-Process $MyExe -ArgumentList 'run wget -N -O $HOME/Install_EasyGitian.sh https://raw.githubusercontent.com/mazaclub/easygitianbuilder/v0.1.0/Install_EasyGitian.sh'
        Start-Process $MyExe 
        #Exit
        }
